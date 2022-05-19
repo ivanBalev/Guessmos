@@ -1,4 +1,4 @@
-const Word = require('../models/word');
+const { Word } = require('../models/word');
 const fs = require('fs');
 
 const seedWords = async (...resourceInfoArray) => {

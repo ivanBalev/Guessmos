@@ -14,4 +14,4 @@ const wordSchema = new Schema({
 
 const Word = mongoose.model('Word', wordSchema);
 
-module.exports = Word;
+module.exports = { Word, wordSchema };

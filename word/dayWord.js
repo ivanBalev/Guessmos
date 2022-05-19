@@ -1,4 +1,4 @@
-const Word = require('../models/word');
+const { Word } = require('../models/word');
 const DayWord = require('../models/dayWord');
 
 const getDayWord = async () => {

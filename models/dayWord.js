@@ -1,18 +1,6 @@
 const mongoose = require('mongoose');
-const Schema = mongoose.Schema;
+const { wordSchema } = require('../models/word')
 
-// TODO: inherit schema from word
-const schema = new Schema({
-    content: {
-        type: String,
-        required: true,
-    },
-    language: {
-        type: String,
-        requred: true,
-    },
-}, { timestamps: true });
-
-const DayWord = mongoose.model('DayWord', schema);
+const DayWord = mongoose.model('DayWord', wordSchema);
 
 module.exports = DayWord;
