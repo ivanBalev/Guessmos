@@ -1,21 +1,17 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
-const wordSchema = new Schema({
+const guessSchema = new Schema({
     content: {
         type: String,
         required: true,
     },
-    language: {
+    userId: {
         type: String,
         requred: true,
     },
-    length: {
-        type: Number,
-        required: true,
-    }
 }, { timestamps: true });
 
-const Word = mongoose.model('Word', wordSchema);
+const Guess = mongoose.model('Guess', guessSchema);
 
-module.exports = { Word, wordSchema };
+module.exports = Guess;

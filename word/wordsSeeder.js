@@ -6,7 +6,7 @@ const seedWords = async (...resourceInfoArray) => {
         console.log('Words have already been seeded');
         return;
     }
-
+    // TODO: language regex depending on resource language
     const regex = new RegExp('[a-zA-Zа-яА-я]{5,}', 'g');
 
     for (const resourceInfo of resourceInfoArray) {
@@ -33,6 +33,7 @@ async function saveDataToDb(uniqueMatches) {
         const word = new Word({
             content: match,
             language: resourceInfo.language,
+            length: match.length,
         });
 
         word.save()
