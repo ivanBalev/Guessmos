@@ -63,11 +63,11 @@ app.post('/guess', async (req, res) => {
         return;
     }
     // No such word in dictionary
-    const sameWordFromDictionary = await Word.findOne({ content: word });
-    if (!sameWordFromDictionary) {
-        res.send({ error: 'word not in dictionary. please try another' });
-        return;
-    }
+    // const sameWordFromDictionary = await Word.findOne({ content: word });
+    // if (!sameWordFromDictionary) {
+    //     res.send({ error: 'word not in dictionary. please try another' });
+    //     return;
+    // }
     const user = uuid ? await User.findById(uuid) : await new User().save();
     // no such user
     if (!user) {
@@ -77,7 +77,7 @@ app.post('/guess', async (req, res) => {
     console.log(user);
     // user preference does not match entered data
     if (user.wordLength != word.length) {
-        res.send({ error: `Please insert word with length ${user.wordLength} and language ${user.wordLanguage} or change settings` });
+        res.send({ error: `Please insert word with length ${user.wordLength} in language ${user.wordLanguage} or change settings` });
         return;
     }
 
@@ -93,7 +93,7 @@ app.post('/guess', async (req, res) => {
         language: user.wordLanguage,
     }))
         .map(w => w.content);
-    console.log(userGuesses);
+    console.log("USER GUESSES: " + userGuesses);
 
     // check attempts count
     if (userGuesses.length == user.attemptsCount) {
@@ -101,8 +101,8 @@ app.post('/guess', async (req, res) => {
         return;
     }
 
-    const dayWord = dayWords.filter(w => w.length == user.wordLength && w.language == user.wordLanguage);
-    console.log(dayWord);
+    let dayWord = (dayWords.find(w => w.length == user.wordLength &&
+        w.language == user.wordLanguage)).content;
     // check if user wasn't already correct
     if (userGuesses.includes(dayWord)) {
         res.send({ error: 'you have already guessed the word successfully' });
@@ -115,8 +115,43 @@ app.post('/guess', async (req, res) => {
         return;
     }
 
-    // TODO: return guess validity
-    res.send({ uuid: user._id.toString() });
+    // Create guess
+    const guess = new Guess({
+        userId: user._id.toString(),
+        content: word,
+        length: word.length,
+    });
+    await guess.save();
+
+    let result = []
+    console.log("DAYWORD IS: " + dayWord);
+    for (const idx in word) {
+        const wordLetter = word[idx];
+
+        const dayWordLetter = dayWord[idx];
+
+        // TODO: rework below algorithm. needs priority search -> first green, then yellow.
+        if (wordLetter === dayWordLetter) {
+            result.push({ letter: wordLetter, state: 'green' });
+            let arr = dayWord.split('');
+            arr[idx] = '*';
+            dayWord = arr.join('');
+            console.log(dayWord);
+        } else if (dayWord.includes(wordLetter)) {
+            result.push({ letter: wordLetter, state: 'yellow' });
+            let dayWordLetterIdx = dayWord.indexOf(wordLetter);
+            let arr = dayWord.split('');
+            arr[dayWordLetterIdx] = '*';
+            dayWord = arr.join('');
+            console.log(dayWord);
+        } else {
+            result.push({ letter: wordLetter, state: 'gray' });
+            console.log(dayWord);
+        }
+    }
+
+    res.append('uuid', user._id.toString());
+    res.send(result);
     return;
 });
 

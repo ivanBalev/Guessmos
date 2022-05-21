@@ -14,6 +14,8 @@ const loadDayWords = async (dayWords) => {
             const word = await Word.find(findQueryObject).skip(randomWordNumber).findOne();
             // Upload to dayWords collection
             const dayWord = await addWordToDayWordsCollection(word);
+            // TODO: REMOVE BELOW LOL
+            dayWord.content = "chase";
             dayWords.push(dayWord);
         }
     }
