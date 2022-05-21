@@ -4,13 +4,12 @@ const cron = require('node-cron');
 
 const config = require('./config');
 const seedWords = require('./word/wordsSeeder');
-const seedDayWords = require('./word/dayWord');
-const DayWord = require('./models/dayWord');
-const User = require('./models/user');
-const Guess = require('./models/guess');
+const loadDayWords = require('./word/loadDayWords');
+const User = require('./user/userModel');
+const Guess = require('./guess/guessModel');
+const { Word } = require('./word/wordModel');
 
-// Startup procedures
-const app = express();
+var dayWords = [];
 
 // (async () => {
 //     try {
@@ -23,9 +22,18 @@ const app = express();
 
 // })
 
+// Startup procedures
+const app = express();
 mongoose.connect(config.mongoConnStr)
     .then(() => {
         console.log('connected to db');
+        (async () => {
+            // Seed dictionary
+            await seedWords({ path: './resources/shakespiro.txt', language: 'en' },
+                { path: './resources/poezia.txt', language: 'bg' });
+            // Initial load of dayWords
+            await loadDayWords(dayWords);
+        })();
         app.listen(3000);
     })
     .catch(err => {
@@ -33,89 +41,95 @@ mongoose.connect(config.mongoConnStr)
     });
 
 app.use(express.json());
-seedWords({ path: './resources/shakespiro.txt', language: 'en' },
-    { path: './resources/poezia.txt', language: 'bg' });
 
+// Global procedures
 
-// Global
-var dayWords = [];
-
-// if this is app's first ever start
-(async () => {
-    if (await DayWord.estimatedDocumentCount() == 0) {
-
-        dayWords.push(await seedDayWords());
-        return;
-    }
-})();
-
-// Change dayWord every day at midnight
+// Change dayWords every day at midnight
+// TODO: Check if this works
 cron.schedule('0 0 * * *', async () => {
-    dayWords.push(await seedDayWords());
+    dayWords = [];
+    await loadDayWords(dayWords);
 });
 
+// Enter guess
 app.post('/guess', async (req, res) => {
-    let uuid = req.headers.uuid;
-    const user = await User.findById(uuid);
+    const uuid = req.headers.uuid;
+    const word = req.body.word?.toLowerCase();
+    console.log(uuid, word);
 
-    if (!uuid) {
-        // Validate word
-
-        // Create user
+    // no word entered
+    if (!word) {
+        res.send({ error: 'word must be entered' });
+        return;
     }
-
-
-
-
-
-
-
-
-    const content = req.body.word.toLowerCase();
-    // TODO: validate content
-
-    if (!uuid) {
-        // Create user
-        const user = new User();
-        const userId = (await user.save())._id.toString();
-        // Create guess
-        const guess = new Guess({
-            userId,
-            content,
-        });
-        // validate content
-        // return how correct the word is
+    // No such word in dictionary
+    const sameWordFromDictionary = await Word.findOne({ content: word });
+    if (!sameWordFromDictionary) {
+        res.send({ error: 'word not in dictionary. please try another' });
+        return;
     }
-
-    // Check if uuid is valid
+    const user = uuid ? await User.findById(uuid) : await new User().save();
+    // no such user
     if (!user) {
-        res.send({ error: "invalid user id" });
+        res.send({ error: 'invalid uuid. insert empty value to generate new uuid or try again' });
+        return;
+    }
+    console.log(user);
+    // user preference does not match entered data
+    if (user.wordLength != word.length) {
+        res.send({ error: `Please insert word with length ${user.wordLength} and language ${user.wordLanguage} or change settings` });
+        return;
     }
 
+    // get today's guesses
+    const { todayStr, tomorrowStr } = getTodayTomorrowStrings();
+    const userGuesses = (await Guess.find({
+        userId: user._id.toString(),
+        createdAt: {
+            $gte: todayStr,
+            $lte: tomorrowStr,
+        },
+        length: user.wordLength,
+        language: user.wordLanguage,
+    }))
+        .map(w => w.content);
+    console.log(userGuesses);
+
+    // check attempts count
+    if (userGuesses.length == user.attemptsCount) {
+        res.send({ error: 'no more attempts for this language and length' });
+        return;
+    }
+
+    const dayWord = dayWords.filter(w => w.length == user.wordLength && w.language == user.wordLanguage);
+    console.log(dayWord);
+    // check if user wasn't already correct
+    if (userGuesses.includes(dayWord)) {
+        res.send({ error: 'you have already guessed the word successfully' });
+        return;
+    }
+
+    // check if user hasn't already entered the same word
+    if (userGuesses.includes(word)) {
+        res.send({ error: 'word already entered. please try another' });
+        return;
+    }
+
+    // TODO: return guess validity
+    res.send({ uuid: user._id.toString() });
+    return;
+});
+
+function getTodayTomorrowStrings() {
     let today = new Date();
     let tomorrow = new Date();
     tomorrow = new Date(tomorrow.setDate(tomorrow.getDate() + 1));
 
-    // Get user's guesses from today
-    const userWords = (await Guess.find({
-        userId: user._id.toString(),
-        createdAt: {
-            // That +1...
-            $gte: `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`,
-            $lte: `${tomorrow.getFullYear()}-${tomorrow.getMonth() + 1}-${tomorrow.getDate()}`,
-        },
-    }))
-        .map(w => w.content);
+    const todayStr = `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`;
+    const tomorrowStr = `${tomorrow.getFullYear()}-${tomorrow.getMonth() + 1}-${tomorrow.getDate()}`;
 
-    // check if user hasn't already entered the same word
-    if (userWords.includes(content)) {
-        res.send({ error: 'Word already entered. Please try another.' });
-    }
+    return { todayStr, tomorrowStr };
+}
 
 
-
-    // TODO: return guess validity
-
-
-
-});
+// TODO: Create user preference setting endpoint

@@ -1,4 +1,4 @@
-const { Word } = require('../models/word');
+const { Word } = require('./wordModel');
 const fs = require('fs');
 
 const seedWords = async (...resourceInfoArray) => {
@@ -11,7 +11,7 @@ const seedWords = async (...resourceInfoArray) => {
 
     for (const resourceInfo of resourceInfoArray) {
         // read resource
-        fs.readFile(resourceInfo.path, 'utf8', (err, data) => {
+        fs.readFile(resourceInfo.path, 'utf8', async (err, data) => {
             if (err) {
                 console.log(err);
                 return;
@@ -21,12 +21,12 @@ const seedWords = async (...resourceInfoArray) => {
             const allMatches = [...data.matchAll(regex)].map(x => x[0].toLowerCase());
             const uniqueMatches = [...new Set(allMatches)];
 
-            saveDataToDb(uniqueMatches);
+            await saveDataToDb(uniqueMatches, resourceInfo);
         });
     }
 }
 
-async function saveDataToDb(uniqueMatches) {
+async function saveDataToDb(uniqueMatches, resourceInfo) {
     let count = 0;
 
     for (const match of uniqueMatches) {
@@ -36,16 +36,15 @@ async function saveDataToDb(uniqueMatches) {
             length: match.length,
         });
 
-        word.save()
-            .then(result => {
-                console.log(result);
-            })
-            .catch(err => {
-                console.log(err);
-            });
+        try {
+            const savedWord = await word.save();
+            console.log(savedWord.content);
+        } catch (err) {
+            console.error(err);
+        }
 
         // limit request count(free-tier mongo crashes otherwise)
-        if (count > 1000) {
+        if (count > 5000) {
             await wait(1000);
             count = 0;
         }

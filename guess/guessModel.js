@@ -10,6 +10,10 @@ const guessSchema = new Schema({
         type: String,
         requred: true,
     },
+    length: {
+        type: String,
+        required: true,
+    },
 }, { timestamps: true });
 
 const Guess = mongoose.model('Guess', guessSchema);
