@@ -1,13 +1,13 @@
-const { Word } = require('./wordModel');
 const fs = require('fs');
+const wordService = require('./dbService');
+const regex = new RegExp('[a-zA-Zа-яА-я]{5,}', 'g');
+
 
 const seedWords = async (...resourceInfoArray) => {
-    if (await Word.estimatedDocumentCount() != 0) {
-        console.log('Words have already been seeded');
+    if (await wordService.countAll() != 0) {
+        console.log('Words already seeded');
         return;
     }
-    // TODO: language regex depending on resource language
-    const regex = new RegExp('[a-zA-Zа-яА-я]{5,}', 'g');
 
     for (const resourceInfo of resourceInfoArray) {
         // read resource
@@ -21,27 +21,16 @@ const seedWords = async (...resourceInfoArray) => {
             const allMatches = [...data.matchAll(regex)].map(x => x[0].toLowerCase());
             const uniqueMatches = [...new Set(allMatches)];
 
-            await saveDataToDb(uniqueMatches, resourceInfo);
+            await saveDataToDb(uniqueMatches, resourceInfo.language);
         });
     }
 }
 
-async function saveDataToDb(uniqueMatches, resourceInfo) {
+async function saveDataToDb(words, language) {
     let count = 0;
 
-    for (const match of uniqueMatches) {
-        const word = new Word({
-            content: match,
-            language: resourceInfo.language,
-            length: match.length,
-        });
-
-        try {
-            const savedWord = await word.save();
-            console.log(savedWord.content);
-        } catch (err) {
-            console.error(err);
-        }
+    for (const word of words) {
+        await wordService.create(word, language);
 
         // limit request count(free-tier mongo crashes otherwise)
         if (count > 5000) {
@@ -59,3 +48,5 @@ function wait(time) {
 }
 
 module.exports = seedWords;
+
+// TODO: language regex depending on resource

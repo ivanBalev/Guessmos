@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
-const userConstants = require('./userConstants');
+const userConstants = require('./constants');
 
 
 const userSchema = new Schema({
@@ -20,6 +20,10 @@ const userSchema = new Schema({
         default: userConstants.defaulAttemptsCount,
     }
 }, { timestamps: true });
+
+userSchema.virtual('id').get(function () {
+    return this._id.toString();
+});
 
 const User = mongoose.model('User', userSchema);
 
