@@ -1,5 +1,6 @@
 const guessService = require('../guess/dbService');
 const userService = require('../user/dbService');
+const wordService = require('../word/dbService');
 const { setGuessColors, getDayWord } = require('./utility/common');
 
 const getUserState = async (req, res) => {
@@ -7,11 +8,12 @@ const getUserState = async (req, res) => {
     if (user.error) {
         return res.send(user);
     }
-    const guesses = (await guessService.getByUser(user)).map(g => g.content);
+    const userGuessesWordIds = (await guessService.getByUser(user)).map(g => g.wordId);
+    const userGuesses = (await wordService.findByIds(userGuessesWordIds)).map(w => w.content);
     let dayWord = getDayWord(user);
     // Color guesses
     let allColoredWords = [];
-    guesses.forEach(guess => {
+    userGuesses.forEach(guess => {
         allColoredWords.push(setGuessColors(dayWord, guess));
     });
     return res.send(allColoredWords);

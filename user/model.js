@@ -18,7 +18,7 @@ const userSchema = new Schema({
         type: Number,
         required: true,
         default: userConstants.defaulAttemptsCount,
-    }
+    },
 }, { timestamps: true });
 
 userSchema.virtual('id').get(function () {

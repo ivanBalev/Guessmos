@@ -13,9 +13,13 @@ const wordSchema = new Schema({
     length: {
         type: Number,
         required: true,
-    }
+    },
 }, { timestamps: true });
+
+wordSchema.virtual('id').get(function () {
+    return this._id.toString();
+});
 
 const Word = mongoose.model('Word', wordSchema);
 
-module.exports = { Word, wordSchema };
+module.exports = Word;

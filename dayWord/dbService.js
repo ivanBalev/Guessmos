@@ -2,7 +2,7 @@ const DayWord = require('./model');
 
 const create = async (word) => {
     const dayWord = new DayWord({
-        content: word.content,
+        wordId: word.id,
         language: word.language,
         length: word.length,
     });

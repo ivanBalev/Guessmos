@@ -14,13 +14,13 @@ const getByUser = async (user) => {
     return guesses;
 }
 
-const create = async (userId, content, language) => {
+const create = async (userId, word) => {
     return await new Guess(
         {
             userId,
-            content,
-            length: content.length,
-            language,
+            wordId: word.id,
+            length: word.length,
+            language: word.language,
         }
     ).save();
 }

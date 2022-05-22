@@ -1,6 +1,6 @@
 const wordService = require('../word/dbService');
 const dayWordService = require('./dbService');
-const languages = { en: 'en', bg: 'bg' };
+const { languages } = require('../word/constants');
 const { defaultWordLength, defaultWordsCount } = require('../word/constants');
 
 
@@ -15,9 +15,9 @@ const loadDayWords = async () => {
             const skipCount = Math.floor(Math.random() * wordsCount);
 
             const word = await wordService.findOne(queryObj, skipCount);
-            // Create dayWord
-            const dayWord = await dayWordService.create(word);
-            dayWords.push(dayWord);
+            // Add dayWord record
+            await dayWordService.create(word);
+            dayWords.push(word);
         }
     }
 }
