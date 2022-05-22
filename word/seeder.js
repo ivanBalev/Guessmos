@@ -2,7 +2,6 @@ const fs = require('fs');
 const wordService = require('./dbService');
 const regex = new RegExp('[a-zA-Zа-яА-я]{5,}', 'g');
 
-
 const seedWords = async (...resourceInfoArray) => {
     if (await wordService.countAll() != 0) {
         console.log('Words already seeded');
@@ -30,8 +29,8 @@ async function saveDataToDb(words, language) {
     let count = 0;
 
     for (const word of words) {
+        console.log(word);
         await wordService.create(word, language);
-
         // limit request count(free-tier mongo crashes otherwise)
         if (count > 5000) {
             await wait(1000);
@@ -48,5 +47,3 @@ function wait(time) {
 }
 
 module.exports = seedWords;
-
-// TODO: language regex depending on resource

@@ -19,6 +19,7 @@ const getUser = async (uuid) => {
 const updateUser = async (uuid, preference) => {
     const validatedPreference = {};
 
+    // Мега грубата валидация :x
     if (Object.values(wordConstants.languages).includes(preference.wordLanguage)) {
         validatedPreference.wordLanguage = preference.wordLanguage;
     }

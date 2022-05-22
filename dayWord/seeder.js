@@ -4,7 +4,7 @@ const { languages } = require('../word/constants');
 const { defaultWordLength, defaultWordsCount } = require('../word/constants');
 
 
-const loadDayWords = async () => {
+const seedDayWords = async () => {
     dayWords = [];
     for (const language in languages) {
         for (let i = 0; i < defaultWordsCount; i++) {
@@ -22,4 +22,4 @@ const loadDayWords = async () => {
     }
 }
 
-module.exports = loadDayWords;
+module.exports = seedDayWords;

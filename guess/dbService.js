@@ -15,6 +15,7 @@ const getByUser = async (user) => {
 }
 
 const create = async (userId, word) => {
+    // TODO: Abstract 1 more time to decouple from server framework
     return await new Guess(
         {
             userId,
