@@ -1,5 +1,5 @@
-# Wordle api
- node.js wordle BE clone
+# Wordle-type api
+ node.js BE clone
 
 Hello there!
 
