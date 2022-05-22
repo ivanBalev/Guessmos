@@ -1,6 +1,7 @@
 const User = require('./model');
 const userConstants = require('./constants');
 const wordConstants = require('../word/constants');
+const maxAttemptsCount = 50;
 
 const getUser = async (uuid) => {
     if (uuid && uuid.length !== userConstants.defaultIdLength) {
@@ -19,7 +20,6 @@ const getUser = async (uuid) => {
 const updateUser = async (uuid, preference) => {
     const validatedPreference = {};
 
-    // Мега грубата валидация :x
     if (Object.values(wordConstants.languages).includes(preference.wordLanguage)) {
         validatedPreference.wordLanguage = preference.wordLanguage;
     }
@@ -30,6 +30,9 @@ const updateUser = async (uuid, preference) => {
     }
 
     if (!isNaN(preference.attemptsCount) && preference.attemptsCount > 0) {
+        if (preference.attemptsCount > maxAttemptsCount) {
+            preference.attemptsCount = maxAttemptsCount;
+        }
         validatedPreference.attemptsCount = preference.attemptsCount;
     }
 

@@ -27,7 +27,7 @@ Hello there!
 		
 		wordLength: max length: 10
 		wordLanguage: 'bg', 'en'
-		attemptsCount: no limit
+		attemptsCount: max: 50
 		
 3.
 		GET /state
