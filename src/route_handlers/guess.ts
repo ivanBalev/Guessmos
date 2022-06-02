@@ -1,10 +1,11 @@
-const userService = require('../user/dbService');
-const wordService = require('../word/dbService');
-const guessService = require('../guess/dbService');
-const { setGuessColors, getDayWord } = require('./utility/common');
-const validateGuess = require('./utility/validation');
+import { Request, Response } from 'express';
+import userService from '../user/dbService';
+import wordService from '../word/dbService';
+import guessService from '../guess/dbService';
+import { setGuessColors, getDayWord } from './utility/common';
+import validateGuess from './utility/validation';
 
-const guessDayWord = async (req, res) => {
+const guessDayWord = async (req: Request, res: Response) => {
     const word = await wordService.findOneByContent(req.body.word);
     if (word.error) {
         return res.send(word);
@@ -33,4 +34,4 @@ const guessDayWord = async (req, res) => {
     return;
 }
 
-module.exports = guessDayWord;
+export default guessDayWord;

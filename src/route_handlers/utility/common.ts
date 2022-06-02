@@ -1,10 +1,12 @@
+import { dayWords } from '../../app';
+
 const colors = {
     green: 'green',
     yellow: 'yellow',
     gray: 'gray',
 }
 
-const setGuessColors = (dayWord, word) => {
+export const setGuessColors = (dayWord: any, word: any) => {
     let dayWordArr = [...dayWord];
     let result = [...word].map(c => { return { value: c, color: colors.gray } });
     // green
@@ -24,9 +26,4 @@ const setGuessColors = (dayWord, word) => {
     return result;
 }
 
-const getDayWord = (user) => (dayWords.find(w => w.length == user.wordLength && w.language == user.wordLanguage)).content;
-
-module.exports = {
-    setGuessColors,
-    getDayWord,
-}
+export const getDayWord = (user: any) => (dayWords.find(w => w.length == user.wordLength && w.language == user.wordLanguage)).content;

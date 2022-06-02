@@ -1,6 +1,6 @@
-const Guess = require('./model');
+import Guess from './model';
 
-const getByUser = async (user) => {
+const getByUser = async (user: any) => {
     const { todayStr, tomorrowStr } = getDateStrings();
     const guesses = await Guess.find({
         userId: user.id,
@@ -14,7 +14,7 @@ const getByUser = async (user) => {
     return guesses;
 }
 
-const create = async (userId, word) => {
+const create = async (userId: string, word: any) => {
     // TODO: Abstract 1 more time to decouple from server framework
     return await new Guess(
         {
@@ -26,11 +26,6 @@ const create = async (userId, word) => {
     ).save();
 }
 
-module.exports = {
-    getByUser,
-    create,
-}
-
 function getDateStrings() {
     let today = new Date();
     let tomorrow = new Date();
@@ -40,4 +35,9 @@ function getDateStrings() {
     const tomorrowStr = `${tomorrow.getFullYear()}-${tomorrow.getMonth() + 1}-${tomorrow.getDate()}`;
 
     return { todayStr, tomorrowStr };
+}
+
+export default {
+    getByUser,
+    create,
 }
