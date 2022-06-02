@@ -1,4 +1,4 @@
-const validateGuess = (userGuesses, user, dayWord, word) => {
+const validateGuess = (userGuesses: any, user: any, dayWord: any, word: any) => {
     // user preference does not match entered data
     if (user.wordLength !== word.length) {
         return { error: `please insert word with length ${user.wordLength} or change settings` };
@@ -21,4 +21,4 @@ const validateGuess = (userGuesses, user, dayWord, word) => {
     }
 }
 
-module.exports = validateGuess;
+export default validateGuess;

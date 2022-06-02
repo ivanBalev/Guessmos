@@ -1,14 +1,15 @@
-const express = require('express');
-const mongoose = require('mongoose');
-const cron = require('node-cron');
+import * as express from 'express';
+import mongoose from 'mongoose';
+import * as cron from 'node-cron';
 
-const config = require('./config');
-const seedDayWords = require('./dayWord/seeder');
-const guessDayWord = require('./route_handlers/guess');
-const getUserState = require('./route_handlers/state');
-const setUserPreference = require('./route_handlers/preference');
+import config from './config';
+import seedDayWords from './dayWord/seeder';
+import guessDayWord from './route_handlers/guess';
+import getUserState from './route_handlers/state';
+import setUserPreference from './route_handlers/preference';
 
-global.dayWords = [];
+// TODO: global dayWords needs to be removed
+export var dayWords: any[] = [];
 // Make sure initialSeed is complete
 // Startup procedures
 const app = express();
@@ -16,7 +17,7 @@ mongoose.connect(config.mongoConnStr)
     .then(async () => {
         console.log('connected to db');
         // initial load of dayWords
-        await seedDayWords();
+        dayWords = await seedDayWords();
         app.listen(3000);
     })
     .catch(err => {
@@ -27,7 +28,7 @@ app.use(express.json());
 
 // Change dayWords every day at midnight
 cron.schedule('0 0 * * *', async () => {
-    await seedDayWords();
+    dayWords = await seedDayWords();
 });
 
 app.post('/preference', setUserPreference);

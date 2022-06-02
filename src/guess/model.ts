@@ -1,7 +1,10 @@
-const mongoose = require('mongoose');
-const Schema = mongoose.Schema;
+import mongoose from 'mongoose';
 
-const dayWordSchema = new Schema({
+const guessSchema = new mongoose.Schema({
+    userId: {
+        type: String,
+        requred: true,
+    },
     wordId: {
         type: String,
         required: true,
@@ -16,7 +19,6 @@ const dayWordSchema = new Schema({
     },
 }, { timestamps: true });
 
+const Guess = mongoose.model('Guess', guessSchema);
 
-const DayWord = mongoose.model('DayWord', dayWordSchema);
-
-module.exports = DayWord;
+export default Guess;

@@ -1,7 +1,7 @@
-const config = require('./config');
-const mongoose = require('mongoose');
-const seedWords = require('./word/seeder');
-const { languages } = require('./word/constants');
+import config from './config';
+import mongoose from 'mongoose';
+import seedWords from './word/seeder';
+import { languages } from './word/constants';
 
 mongoose.connect(config.mongoConnStr)
     .then(async () => {

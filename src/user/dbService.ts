@@ -1,9 +1,10 @@
-const User = require('./model');
-const userConstants = require('./constants');
-const wordConstants = require('../word/constants');
+import User from './model';
+import * as userConstants from './constants';
+import * as wordConstants from '../word/constants';
+
 const maxAttemptsCount = 50;
 
-const getUser = async (uuid) => {
+const getUser = async (uuid: any) => {
     if (uuid && uuid.length !== userConstants.defaultIdLength) {
         return { error: 'invalid uuid' };
     }
@@ -17,8 +18,12 @@ const getUser = async (uuid) => {
     return user;
 }
 
-const updateUser = async (uuid, preference) => {
-    const validatedPreference = {};
+const updateUser = async (uuid: any, preference: any) => {
+    let validatedPreference: {
+        wordLanguage: string,
+        wordLength: number,
+        attemptsCount: number,
+    } = { wordLanguage: '', wordLength: 0, attemptsCount: 0 };
 
     if (Object.values(wordConstants.languages).includes(preference.wordLanguage)) {
         validatedPreference.wordLanguage = preference.wordLanguage;
@@ -39,7 +44,7 @@ const updateUser = async (uuid, preference) => {
     await User.findByIdAndUpdate(uuid, validatedPreference);
 }
 
-module.exports = {
+export default {
     getUser,
     updateUser,
 }
