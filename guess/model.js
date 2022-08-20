@@ -1,6 +1,7 @@
-import mongoose from 'mongoose';
+const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
 
-const guessSchema = new mongoose.Schema({
+const guessSchema = new Schema({
     userId: {
         type: String,
         requred: true,
@@ -21,4 +22,4 @@ const guessSchema = new mongoose.Schema({
 
 const Guess = mongoose.model('Guess', guessSchema);
 
-export default Guess;
+module.exports = Guess;

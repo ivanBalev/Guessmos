@@ -1,8 +1,9 @@
-import mongoose from 'mongoose';
-import * as userConstants from './constants';
+const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
+const userConstants = require('./constants');
 
 
-const userSchema = new mongoose.Schema({
+const userSchema = new Schema({
     wordLength: {
         type: Number,
         requred: true,
@@ -26,4 +27,4 @@ userSchema.virtual('id').get(function () {
 
 const User = mongoose.model('User', userSchema);
 
-export default User;
+module.exports = User;

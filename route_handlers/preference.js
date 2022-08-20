@@ -1,6 +1,6 @@
-import userService from '../user/dbService';
+const userService = require('../user/dbService');
 
-const setUserPreference = async (req: any, res: any) => {
+const setUserPreference = async (req, res) => {
     const user = await userService.getUser(req.headers.uuid);
     if (user.error) {
         return res.send(user);
@@ -9,5 +9,5 @@ const setUserPreference = async (req: any, res: any) => {
     res.send(await userService.updateUser(user.id, req.body));
 }
 
-export default setUserPreference;
+module.exports = setUserPreference;
 

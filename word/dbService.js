@@ -1,6 +1,6 @@
-import Word from './model';
+const Word = require('./model');
 
-async function create(content: string, language: string) {
+const create = async (content, language) => {
     const word = new Word({
         content,
         language,
@@ -9,7 +9,7 @@ async function create(content: string, language: string) {
     return await word.save();
 }
 
-async function findOneByContent(content: string) : Promise<any> {
+const findOneByContent = async (content) => {
     if (!content) {
         return { error: 'word must be entered' };
     }
@@ -23,17 +23,17 @@ async function findOneByContent(content: string) : Promise<any> {
     return word;
 }
 
-async function findByIds(userGuessesWordIds: string[]) {
+const findByIds = async (userGuessesWordIds) => {
     return await Word.find({ '_id': { $in: userGuessesWordIds } })
 }
 
-async function findOne(queryObj: object, skipCount: number) { return Word.find(queryObj).skip(skipCount).findOne() };
+const findOne = async (queryObj, skipCount) => await Word.find(queryObj).skip(skipCount).findOne();
 
-async function count(queryObj: object) { return Word.countDocuments(queryObj) };
+const count = async (queryObj) => await Word.countDocuments(queryObj);
 
-async function countAll(): Promise<number> { return Word.estimatedDocumentCount(); };
+const countAll = async () => await Word.estimatedDocumentCount();
 
-export default {
+module.exports = {
     create,
     findOneByContent,
     findByIds,

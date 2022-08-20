@@ -1,10 +1,9 @@
-import fs from 'fs';
-import wordService from './dbService';
-
+const fs = require('fs');
+const wordService = require('./dbService');
 const regex = new RegExp('[a-zA-Zа-яА-я]{5,}', 'g');
 
-async function seedWords(...resourceInfoArray) {
-    if (await wordService.countAll() !== 0) {
+const seedWords = async (...resourceInfoArray) => {
+    if (await wordService.countAll() != 0) {
         console.log('Words already seeded');
         return;
     }
@@ -47,4 +46,4 @@ function wait(time) {
     });
 }
 
-export default seedWords;
+module.exports = seedWords;
