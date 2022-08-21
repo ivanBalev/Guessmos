@@ -4,6 +4,7 @@ const wordConstants = require('../word/constants');
 const maxAttemptsCount = 50;
 
 const getUser = async (uuid) => {
+    // TODO: elvis operator
     if (uuid && uuid.length !== userConstants.defaultIdLength) {
         return { error: 'invalid uuid' };
     }
