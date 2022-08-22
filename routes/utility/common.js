@@ -1,11 +1,6 @@
 const wordService = require('../../word/dbService');
 const NodeCache = require('node-cache');
 
-// TODO: make flexible when cache is cleared -
-// store Date variable in cache at server start
-// and delete cache every 24 hours
-
-// TODO: do we need this file at all? Cant it be instantiated in common.js
 const cache = new NodeCache({ stdTTL: 60 * 60 * 24 });
 
 const colors = {
@@ -37,36 +32,39 @@ const setGuessColors = (dayWord, word) => {
   return result;
 };
 
+// TODO: move this to Word entity
 const getDayWord = async (user) => {
-  let word = '';
+  let dayWord = '';
 
+  // Check for dayWord in cache
   for (const key in cache.mget(cache.keys())) {
-    console.log('DAYWORD: ' + key);
-
     if (
       key.length === user.wordLength &&
       cache.get(key) === user.wordLanguage
     ) {
-      word = key;
+      dayWord = key;
     }
   }
 
   // Add word to cache if it's not there
-  if (!word) {
+  if (!dayWord) {
     const queryObj = { language: user.wordLanguage, length: user.wordLength };
 
-    // Randomize words
+    // Randomize words in db
     const wordsCount = await wordService.count(queryObj);
     const skipCount = Math.floor(Math.random() * wordsCount);
 
+    // Get dayWord from db and update dayWordDates record
     const dbWord = await wordService.findOne(queryObj, skipCount);
-    word = dbWord.content;
+    dbWord.dayWordDates.push(Date.now());
+    await dbWord.save();
 
-    // TODO: update word record to indicate it's been chosen as dayword
+    // Add dayWord to cache
+    dayWord = dbWord.content;
     cache.set(dbWord.content, dbWord.language);
   }
 
-  return word;
+  return dayWord;
 };
 
 module.exports = {

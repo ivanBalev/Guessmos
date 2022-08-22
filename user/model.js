@@ -7,12 +7,12 @@ const userSchema = new Schema({
     wordLength: {
         type: Number,
         requred: true,
-        default: userConstants.defaultWordLength,
+        default: userConstants.defaultGuessLength,
     },
     wordLanguage: {
         type: String,
         required: true,
-        default: userConstants.defaultWordLanguage,
+        default: userConstants.defaultGuessLanguage,
     },
     attemptsCount: {
         type: Number,

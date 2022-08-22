@@ -1,11 +1,17 @@
-const defaultWordLength = 5;
-const defaultWordLanguage = 'en';
+const defaultGuessLength = 5;
+const maxGuessLength = 11;
+const maxAttemptsCount = 50;
+const defaultGuessLanguage = 'en';
 const defaulAttemptsCount = 6;
 const defaultIdLength = 24;
+const languages = { en: 'en', bg: 'bg' };
 
 module.exports = {
-    defaultWordLength,
-    defaultWordLanguage,
-    defaulAttemptsCount,
-    defaultIdLength,
-}
+  defaultGuessLength,
+  defaultGuessLanguage,
+  defaulAttemptsCount,
+  defaultIdLength,
+  maxGuessLength,
+  maxAttemptsCount,
+  languages,
+};
