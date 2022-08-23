@@ -8,7 +8,7 @@ const dbConnectionStr = process.env.DATABASE.replace(
 const connectDB = async () => {
   try {
     await mongoose.connect(dbConnectionStr);
-    console.log(`Connected to db.`);
+    console.log(`Connected to db`);
   } catch (err) {
     console.log(err);
   }

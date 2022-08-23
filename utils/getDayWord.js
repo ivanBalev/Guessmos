@@ -1,38 +1,8 @@
-const wordService = require('../../word/dbService');
+const wordService = require('../word/dbService');
 const NodeCache = require('node-cache');
 
 const cache = new NodeCache({ stdTTL: 60 * 60 * 24 });
 
-const colors = {
-  green: 'green',
-  yellow: 'yellow',
-  gray: 'gray',
-};
-
-// TODO: move this to Word entity
-const setGuessColors = (dayWord, word) => {
-  let dayWordArr = [...dayWord];
-  let result = [...word].map((c) => {
-    return { value: c, color: colors.gray };
-  });
-  // green
-  result.forEach((c, idx) => {
-    if (dayWord[idx] == c.value) {
-      result[idx].color = colors.green;
-      dayWordArr[idx] = null;
-    }
-  });
-  // yellow
-  result.forEach((c, idx) => {
-    if (dayWordArr.includes(c.value) && c.color != colors.green) {
-      result[idx].color = colors.yellow;
-      dayWordArr[dayWordArr.indexOf(c.value)] = null;
-    }
-  });
-  return result;
-};
-
-// TODO: move this to Word entity
 const getDayWord = async (user) => {
   let dayWord = '';
 
@@ -48,7 +18,7 @@ const getDayWord = async (user) => {
 
   // Add word to cache if it's not there
   if (!dayWord) {
-    const queryObj = { language: user.wordLanguage, length: user.wordLength };
+    const queryObj = { language: user.guessLanguage, length: user.guessLength };
 
     // Randomize words in db
     const wordsCount = await wordService.count(queryObj);
@@ -67,7 +37,4 @@ const getDayWord = async (user) => {
   return dayWord;
 };
 
-module.exports = {
-  setGuessColors,
-  getDayWord,
-};
+module.exports = getDayWord;

@@ -5,11 +5,15 @@ const wordSchema = new Schema(
   {
     content: {
       type: String,
-      required: true,
+      required: [true, 'Word must have content'],
     },
     language: {
       type: String,
-      requred: true,
+      requred: [true, 'Word must have language'],
+      enum: {
+        values: ['en', 'bg'],
+        message: 'Supported languages: en, bg',
+      },
     },
     length: {
       type: Number,
@@ -19,11 +23,6 @@ const wordSchema = new Schema(
   },
   { timestamps: true }
 );
-
-// TODO: this can be circumvented. NOT NEEDED
-wordSchema.virtual('id').get(function () {
-  return this._id.toString();
-});
 
 const Word = mongoose.model('Word', wordSchema);
 

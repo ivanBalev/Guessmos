@@ -1,12 +1,10 @@
 const express = require('express');
 const router = express.Router();
 
-const guessDayWord = require('./guess');
-const getUserState = require('./state');
-const setUserPreference = require('./preference');
+const controller = require('./../controllers/controller');
 
-router.get('/state', getUserState);
-router.post('/guess', guessDayWord);
-router.post('/preference', setUserPreference);
+router.get('/state', controller.getState);
+router.post('/guess', controller.guess);
+router.post('/preference', controller.setPreference);
 
 module.exports = router;
