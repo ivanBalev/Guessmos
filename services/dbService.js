@@ -1,5 +1,6 @@
 const Word = require('../models/word');
 const Guess = require('../models/guess');
+const mongooseRepository = require('./mongooseRepository');
 const AppError = require('./../utils/appError');
 const NodeCache = require('node-cache');
 const cache = new NodeCache({ stdTTL: 60 * 60 * 24 });
@@ -12,7 +13,7 @@ const colors = {
 
 async function guess(guess, user) {
   // Check if word exists in db
-  const word = await Word.findOne({ content: guess });
+  const word = await mongooseRepository.findOne(Word, { content: guess });
   if (!word) {
     throw new AppError('word does not exist in dictionary');
   }
@@ -21,18 +22,20 @@ async function guess(guess, user) {
   const userGuesses = (await getUserGuesses(user)).map((g) => g.content);
   // Get dayWord
   let dayWord = await getDayWord(user);
+
   // Validate guess
   validateGuess(user, userGuesses, dayWord, word);
 
   // Create new guess
   // TODO - BLOW THIS UP AND SEE WHAT HAPPENS IN ERROR HANDLING - enter invalid data
-  await new Guess({
+  const guessObject = {
     userId: user._id,
     wordId: word._id,
     length: word.length,
     language: word.language,
     content: word.content,
-  }).save();
+  };
+  await mongooseRepository.create(Guess, guessObject);
 
   return colorGuess(guess, dayWord);
 }
@@ -44,11 +47,7 @@ async function getUserState(user) {
 }
 
 async function updateUser(user, preference) {
-  for (const [key, value] of Object.entries(preference)) {
-    user[key] = value;
-  }
-  await user.save();
-  return;
+  await mongooseRepository.update(user, preference);
 }
 
 module.exports = {
@@ -105,7 +104,7 @@ function validateGuess(user, pastUserGuesses, dayWord, guess) {
 
 async function getUserGuesses(user) {
   const { todayStr, tomorrowStr } = getDateStrings();
-  const guesses = await Guess.find({
+  const findQuery = {
     userId: user._id,
     createdAt: {
       $gte: todayStr,
@@ -113,8 +112,8 @@ async function getUserGuesses(user) {
     },
     length: user.guessLength,
     language: user.guessLanguage,
-  });
-  return guesses;
+  };
+  return await mongooseRepository.findMany(Guess, findQuery);
 }
 
 async function getDayWord(user) {
@@ -132,16 +131,17 @@ async function getDayWord(user) {
 
   // Add word to cache if it's not there
   if (!dayWord) {
-    const queryObj = { language: user.guessLanguage, length: user.guessLength };
-
-    // Randomize words in db
-    const wordsCount = await await Word.countDocuments(queryObj);
-    const skip = Math.floor(Math.random() * wordsCount);
+    const query = { language: user.guessLanguage, length: user.guessLength };
 
     // Get dayWord from db and update dayWordDates record
-    const dbWord = await await Word.find(queryObj).skip(skip).findOne();
-    dbWord.dayWordDates.push(Date.now());
-    await dbWord.save();
+    const dbWord = await mongooseRepository.findRandom(Word, query);
+    // Get dayWord from db and update dayWordDates record
+
+    await mongooseRepository.addToArrayField(
+      dbWord,
+      'dayWordDates',
+      Date.now()
+    );
 
     // Add dayWord to cache
     dayWord = dbWord.content;
