@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "start": "nodemon .",
-    "seed": "node seed.js"
+    "seed": "node seed.js",
+    "test": "mocha test"
   },
   "repository": {
     "type": "git",
@@ -25,6 +26,8 @@
     "node-cron": "^3.0.0"
   },
   "devDependencies": {
+    "chai": "^4.3.6",
+    "mocha": "^10.0.0",
     "nodemon": "^2.0.19"
   }
 }

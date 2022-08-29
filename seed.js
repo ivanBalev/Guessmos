@@ -1,7 +1,7 @@
 const fs = require('fs');
 const Word = require('./word/model');
 const regex = new RegExp('[a-zA-Zа-яА-я]{5,}', 'g');
-require('dotenv').config({ path: './config.env' });
+require('dotenv').config({ path: './.env.sample' });
 const connectDB = require('./server');
 
 (async () => {

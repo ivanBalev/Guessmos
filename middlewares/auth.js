@@ -1,8 +1,8 @@
 const catchAsync = require('./../utils/catchAsync');
 const AppError = require('./../utils/appError');
 const User = require('../models/user');
-const mongooseRepository = require('../services/mongooseRepository');
 const mongoose = require('mongoose');
+const mongooseRepository = require('../services/mongooseRepository');
 
 module.exports = catchAsync(async (req, res, next) => {
   const userId = req.headers.uuid;

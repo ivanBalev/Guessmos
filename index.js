@@ -1,10 +1,10 @@
-require('dotenv').config({ path: './config.env' });
+require('dotenv').config({ path: './.env.sample' });
 const app = require('./app');
-const connectDB = require('./server');
+const { connect } = require('./server');
 
 (async () => {
   try {
-    await connectDB();
+    await connect();
     const port = process.env.PORT;
     app.listen(port);
     console.log(`Listening on port ${port}`);
