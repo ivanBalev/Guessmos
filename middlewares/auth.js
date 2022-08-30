@@ -4,7 +4,7 @@ const User = require('../models/user');
 const mongoose = require('mongoose');
 const mongooseRepository = require('../services/mongooseRepository');
 
-module.exports = catchAsync(async (req, res, next) => {
+module.exports = catchAsync(async (req, res) => {
   const userId = req.headers.uuid;
   let user = {};
 
@@ -23,6 +23,6 @@ module.exports = catchAsync(async (req, res, next) => {
   }
 
   req.user = user;
+  console.log(user._id);
   res.append('uuid', user._id);
-  next();
 });

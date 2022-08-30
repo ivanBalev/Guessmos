@@ -1,6 +1,6 @@
-require('dotenv').config({ path: './.env.sample' });
+require('dotenv').config({ path: `.env.${process.env.NODE_ENV}` });
 const app = require('./app');
-const { connect } = require('./server');
+const { connect } = require('./database');
 
 (async () => {
   try {
@@ -12,3 +12,5 @@ const { connect } = require('./server');
     console.log(err);
   }
 })();
+
+module.exports = app;

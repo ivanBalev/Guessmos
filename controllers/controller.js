@@ -1,15 +1,15 @@
 const dbService = require('./../services/dbService');
 const catchAsync = require('./../utils/catchAsync');
 
-const guess = catchAsync(async (req, res, next) => {
+const guess = catchAsync(async (req, res) => {
   return res.send(await dbService.guess(req.body.word, req.user));
 });
 
-const getUserState = catchAsync(async (req, res, next) => {
+const getUserState = catchAsync(async (req, res) => {
   return res.send(await dbService.getUserState(req.user));
 });
 
-const setPreference = catchAsync(async (req, res, next) => {
+const setPreference = catchAsync(async (req, res) => {
   return res.send(await dbService.updateUser(req.user, req.body));
 });
 

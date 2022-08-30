@@ -9,6 +9,8 @@ const colors = {
   gray: 'gray',
 };
 
+console.log(process.env.NODE_ENV);
+
 describe('colorContent works', function () {
   it('colors words correctly', function () {
     const dayWord = 'sheep';

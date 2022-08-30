@@ -12,7 +12,6 @@ const userSchema = new Schema(
   {
     guessLength: {
       type: Number,
-      requred: true,
       default: constants.minGuessLength,
       min: [
         constants.minGuessLength,
@@ -25,8 +24,7 @@ const userSchema = new Schema(
     },
     guessLanguage: {
       type: String,
-      required: true,
-      default: constants.en,
+      default: constants.languages.en,
       enum: {
         values: Object.values(constants.languages),
         message: 'Unsupported language',
@@ -34,7 +32,6 @@ const userSchema = new Schema(
     },
     attemptsCount: {
       type: Number,
-      required: true,
       default: constants.minAttemptsCount,
       min: [
         constants.minAttemptsCount,

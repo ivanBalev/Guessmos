@@ -5,8 +5,11 @@ const AppError = require('./../utils/appError');
 const getDayWord = require('./../utils/getDayWord');
 
 async function guess(guess, user) {
+  console.log(user);
   // Check if word exists in db
-  const word = await mongooseRepository.findOne(Word, { content: guess });
+  const word = await mongooseRepository.findOne(Word, {
+    content: guess.toLowerCase(),
+  });
   if (!word) {
     throw new AppError('word does not exist in dictionary');
   }
@@ -25,7 +28,7 @@ async function guess(guess, user) {
     content: word.content,
   };
   await mongooseRepository.create(Guess, guessObject);
-  return Guess.colorContent(guess, dayWord);
+  return Guess.colorContent(word.content, dayWord);
 }
 
 async function getUserState(user) {

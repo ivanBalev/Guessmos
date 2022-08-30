@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-
 const dbConnectionStr = process.env.DATABASE.replace(
   '<PASSWORD>',
   process.env.DATABASE_PASSWORD
