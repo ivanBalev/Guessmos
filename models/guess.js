@@ -48,7 +48,8 @@ guessSchema.statics.colorContent = function (guessContent, dayWord) {
     guessContent.length < constants.minLength ||
     guessContent.length > constants.maxLength ||
     dayWord.length < constants.minLength ||
-    dayWord.length > constants.maxLength
+    dayWord.length > constants.maxLength ||
+    dayWord.length !== guessContent.length
   ) {
     throw new AppError('unsupported data length');
   }
@@ -97,7 +98,7 @@ guessSchema.statics.validateForUser = function (
     throw new AppError('word already entered. please try another');
   }
   // check attempts count
-  if (pastUserGuesses.length == user.attemptsCount) {
+  if (pastUserGuesses.length >= user.attemptsCount) {
     throw new AppError('no more attempts for this language and length');
   }
 };
