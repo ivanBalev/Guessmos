@@ -1,9 +1,9 @@
 class AppError extends Error {
-  constructor(message) {
-    // TODO: not sure why super(message) doesn't work
+  constructor(message, statusCode) {
     super(message);
-    this.msg = message;
-    this.isOperational = true;
+    this.statusCode = statusCode;
+    this.status = `${statusCode}`.startsWith('4') ? 'fail' : 'error';
+    this.isExpected = true;
   }
 }
 

@@ -5,21 +5,20 @@ const AppError = require('./../utils/appError');
 const getDayWord = require('./../utils/getDayWord');
 
 async function guess(guess, user) {
-  console.log(user);
   // Check if word exists in db
   const word = await mongooseRepository.findOne(Word, {
     content: guess.toLowerCase(),
   });
   if (!word) {
-    throw new AppError('word does not exist in dictionary');
+    throw new AppError('word does not exist in dictionary', 404);
   }
 
+  // Check if user hasn't already entered the word, guessed it etc.
   const userGuesses = (await Guess.getByUser(user)).map((g) => g.content);
   const dayWord = await getDayWord(user);
   Guess.validateForUser(user, userGuesses, dayWord, word);
 
   // Create new guess
-  // TODO - BLOW THIS UP AND SEE WHAT HAPPENS IN ERROR HANDLING - enter invalid data
   const guessObject = {
     userId: user._id,
     wordId: word._id,
@@ -28,6 +27,8 @@ async function guess(guess, user) {
     content: word.content,
   };
   await mongooseRepository.create(Guess, guessObject);
+
+  // Color guess
   return Guess.colorContent(word.content, dayWord);
 }
 

@@ -41,7 +41,7 @@ const guessSchema = new Schema(
 
 guessSchema.statics.colorContent = function (guessContent, dayWord) {
   if (typeof guessContent !== 'string' || typeof dayWord !== 'string') {
-    throw new AppError('please enter arguments of appropriate type');
+    throw new AppError('please enter arguments of appropriate type', 400);
   }
 
   if (
@@ -51,7 +51,7 @@ guessSchema.statics.colorContent = function (guessContent, dayWord) {
     dayWord.length > constants.maxLength ||
     dayWord.length !== guessContent.length
   ) {
-    throw new AppError('unsupported data length');
+    throw new AppError('unsupported data length', 400);
   }
 
   let dayWordArr = [...dayWord];
@@ -83,23 +83,23 @@ guessSchema.statics.validateForUser = function (
 ) {
   // user preference does not match entered data
   if (user.guessLength !== guess.length) {
-    throw new AppError(`please insert guess with correct length`);
+    throw new AppError(`please insert guess with correct length`, 400);
   }
   // user preference does not match entered data
   if (user.guessLanguage !== guess.language) {
-    throw new AppError(`please insert guess in correct language`);
+    throw new AppError(`please insert guess in correct language`, 400);
   }
   // check if user wasn't already correct
   if (pastUserGuesses.includes(dayWord)) {
-    throw new AppError('you have already guessed the word successfully');
+    throw new AppError('you have already guessed the word successfully', 400);
   }
   // check if user hasn't already entered the same word
   if (pastUserGuesses.includes(guess.content)) {
-    throw new AppError('word already entered. please try another');
+    throw new AppError('word already entered. please try another', 400);
   }
   // check attempts count
   if (pastUserGuesses.length >= user.attemptsCount) {
-    throw new AppError('no more attempts for this language and length');
+    throw new AppError('no more attempts for this language and length', 400);
   }
 };
 

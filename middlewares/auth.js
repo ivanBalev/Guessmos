@@ -13,16 +13,15 @@ module.exports = catchAsync(async (req, res) => {
   } else {
     // Validate user
     if (!mongoose.isValidObjectId(userId)) {
-      throw new AppError('invalid user id');
+      throw new AppError('invalid user id', 401);
     }
     const dbUser = await mongooseRepository.findById(User, userId);
     if (!dbUser) {
-      throw new AppError('user does not exist');
+      throw new AppError('user does not exist', 404);
     }
     user = dbUser;
   }
 
   req.user = user;
-  console.log(user._id);
   res.append('uuid', user._id);
 });

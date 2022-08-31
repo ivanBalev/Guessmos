@@ -3,13 +3,12 @@ const { ObjectId } = require('mongoose').Types;
 const { connect, disconnect } = require('../database');
 const { expect } = require('chai');
 const Guess = require('./../models/guess');
+const getPreviousDay = require('./helpers/helpers');
 const colors = {
   green: 'green',
   yellow: 'yellow',
   gray: 'gray',
 };
-
-console.log(process.env.NODE_ENV);
 
 describe('colorContent works', function () {
   it('colors words correctly', function () {
@@ -192,11 +191,4 @@ function expectAllColorsToBe(wordArray, color) {
       return letter.color === color;
     });
   });
-}
-
-function getPreviousDay(date = new Date()) {
-  const previous = new Date(date.getTime());
-  previous.setDate(date.getDate() - 1);
-
-  return previous;
 }
