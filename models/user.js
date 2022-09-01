@@ -1,8 +1,8 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 const constants = {
-  minGuessLength: 5,
-  maxGuessLength: 11,
+  minWordLength: 5,
+  maxWordLength: 11,
   minAttemptsCount: 6,
   maxAttemptsCount: 50,
   languages: { en: 'en', bg: 'bg' },
@@ -10,19 +10,19 @@ const constants = {
 
 const userSchema = new Schema(
   {
-    guessLength: {
+    wordLength: {
       type: Number,
-      default: constants.minGuessLength,
+      default: constants.minWordLength,
       min: [
-        constants.minGuessLength,
-        `Guess length must be above ${constants.minGuessLength - 1}`,
+        constants.minWordLength,
+        `Guess length must be above ${constants.minWordLength - 1}`,
       ],
       max: [
-        constants.maxGuessLength,
-        `Guess length must be below ${constants.maxGuessLength + 1}`,
+        constants.maxWordLength,
+        `Guess length must be below ${constants.maxWordLength + 1}`,
       ],
     },
-    guessLanguage: {
+    wordLanguage: {
       type: String,
       default: constants.languages.en,
       enum: {

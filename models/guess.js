@@ -82,11 +82,11 @@ guessSchema.statics.validateForUser = function (
   guess
 ) {
   // user preference does not match entered data
-  if (user.guessLength !== guess.length) {
+  if (user.wordLength !== guess.length) {
     throw new AppError(`please insert guess with correct length`, 400);
   }
   // user preference does not match entered data
-  if (user.guessLanguage !== guess.language) {
+  if (user.wordLanguage !== guess.language) {
     throw new AppError(`please insert guess in correct language`, 400);
   }
   // check if user wasn't already correct
@@ -111,8 +111,8 @@ guessSchema.statics.getByUser = async function (user) {
       $gte: todayStr,
       $lte: tomorrowStr,
     },
-    length: user.guessLength,
-    language: user.guessLanguage,
+    length: user.wordLength,
+    language: user.wordLanguage,
   };
   return await this.find(findQuery);
 };

@@ -30,8 +30,8 @@ describe('auth middleware', function () {
 
     expect(mockRequest.user).to.exist;
     expect(mongoose.isValidObjectId(mockRequest.user._id)).to.be.true;
-    expect(mockRequest.user.guessLength).to.equal(5);
-    expect(mockRequest.user.guessLanguage).to.equal('en');
+    expect(mockRequest.user.wordLength).to.equal(5);
+    expect(mockRequest.user.wordLanguage).to.equal('en');
     expect(mockRequest.user.attemptsCount).to.equal(6);
     expect(mockResponse.headers.uuid).to.exist;
     expect(mongoose.isValidObjectId(mockResponse.headers.uuid)).to.be.true;

@@ -20,25 +20,25 @@ describe('getDayWord', function () {
   it('works fine', async function () {
     // Arrange
     const user5 = {
-      guessLength: 5,
-      guessLanguage: 'en',
+      wordLength: 5,
+      wordLanguage: 'en',
     };
 
     const user6 = {
-      guessLength: 6,
-      guessLanguage: 'en',
+      wordLength: 6,
+      wordLanguage: 'en',
     };
 
     const words = [
       {
         content: 'testW',
-        length: user5.guessLength,
-        language: user5.guessLanguage,
+        length: user5.wordLength,
+        language: user5.wordLanguage,
       },
       {
         content: 'testWo',
-        length: user6.guessLength,
-        language: user6.guessLanguage,
+        length: user6.wordLength,
+        language: user6.wordLanguage,
       },
     ];
 

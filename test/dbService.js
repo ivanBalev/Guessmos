@@ -156,11 +156,10 @@ describe('updateUser function', function () {
       length: 8,
       language: 'bg',
     };
-    // TODO: Fix User properties. Just wordLength and wordLanguage... avoid confusion
     const preference = {
-      guessLength: word.length,
+      wordLength: word.length,
       attemptsCount: 40,
-      guessLanguage: word.language,
+      wordLanguage: word.language,
     };
 
     await new Word(word).save();

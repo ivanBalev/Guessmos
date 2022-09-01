@@ -60,8 +60,8 @@ describe('colorContent works', function () {
 
 describe('validateForUser works', function () {
   let user = {
-    guessLength: 5,
-    guessLanguage: 'en',
+    wordLength: 5,
+    wordLanguage: 'en',
     attemptsCount: 4,
   };
   let pastUserGuesses = ['pesho', 'misho', 'gosho', 'vasho', 'nasho'];
@@ -124,8 +124,8 @@ describe('getByUser works', function () {
 
   const user = {
     _id: ObjectId(),
-    guessLength: 7,
-    guessLanguage: 'en',
+    wordLength: 7,
+    wordLanguage: 'en',
   };
 
   const guesses = [
@@ -178,8 +178,8 @@ describe('getByUser works', function () {
     // Single matching guess
     expect(dbGuesses.length).to.equal(1);
     // Confirm it's the same as in our objects list
-    expect(dbGuesses[0].language).to.equal(user.guessLanguage);
-    expect(dbGuesses[0].length).to.equal(user.guessLength);
+    expect(dbGuesses[0].language).to.equal(user.wordLanguage);
+    expect(dbGuesses[0].length).to.equal(user.wordLength);
     expect(dbGuesses[0].content).to.equal(guesses[0].content);
   });
 });

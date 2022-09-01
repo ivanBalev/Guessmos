@@ -9,8 +9,8 @@ module.exports = async function (user) {
   // Check for dayWord in cache
   for (const key in cache.mget(cache.keys())) {
     if (
-      key.length === user.guessLength &&
-      cache.get(key) === user.guessLanguage
+      key.length === user.wordLength &&
+      cache.get(key) === user.wordLanguage
     ) {
       dayWord = key;
     }
@@ -18,7 +18,7 @@ module.exports = async function (user) {
 
   // Add word to cache if it's not there
   if (!dayWord) {
-    const query = { language: user.guessLanguage, length: user.guessLength };
+    const query = { language: user.wordLanguage, length: user.wordLength };
     // Get dayWord from db and update dayWordDates record
     const dbWord = await mongooseRepository.findRandom(Word, query);
     // Get dayWord from db and update dayWordDates record
