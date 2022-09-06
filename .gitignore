@@ -1,5 +1,4 @@
 node_modules
 config.js
-.env.sample
 .env.test
 .env.development
