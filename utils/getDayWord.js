@@ -19,9 +19,9 @@ module.exports = async function (user) {
   // Add word to cache if it's not there
   if (!dayWord) {
     const query = { language: user.wordLanguage, length: user.wordLength };
-    // Get dayWord from db and update dayWordDates record
+    // Get dayWord from db
     const dbWord = await mongooseRepository.findRandom(Word, query);
-    // Get dayWord from db and update dayWordDates record
+    // Update dayWordDates field
     await mongooseRepository.addToArrayField(
       dbWord,
       'dayWordDates',
@@ -33,5 +33,7 @@ module.exports = async function (user) {
     cache.set(dbWord.content, dbWord.language);
   }
 
+  // For testing
+  console.log('DAYWORD IS: ', dayWord);
   return dayWord;
 };

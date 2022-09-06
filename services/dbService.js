@@ -1,8 +1,8 @@
 const Word = require('../models/word');
 const Guess = require('../models/guess');
-const mongooseRepository = require('./mongooseRepository');
 const AppError = require('./../utils/appError');
 const getDayWord = require('./../utils/getDayWord');
+const mongooseRepository = require('./mongooseRepository');
 
 async function guess(guess, user) {
   // Check if word exists in db
@@ -10,7 +10,10 @@ async function guess(guess, user) {
     content: guess.toLowerCase(),
   });
   if (!word) {
-    throw new AppError('word does not exist in dictionary', 404);
+    throw new AppError(
+      'Invalid input - word does not exist in dictionary',
+      404
+    );
   }
 
   // Check if user hasn't already entered the word, guessed it etc.
@@ -33,13 +36,21 @@ async function guess(guess, user) {
 }
 
 async function getUserState(user) {
-  const pastUserGuesses = (await Guess.getByUser(user)).map((g) => g.content);
+  // Get all of user's guesses for the current day according to their preference
+  const userGuesses = (await Guess.getByUser(user)).map((g) => g.content);
   const dayWord = await getDayWord(user);
-  return pastUserGuesses.map((g) => Guess.colorContent(g, dayWord));
+  // Color each guess
+  return userGuesses.map((g) => Guess.colorContent(g, dayWord));
 }
 
 async function updateUser(user, preference) {
-  await mongooseRepository.update(user, preference);
+  try {
+    // Update user preference
+    await mongooseRepository.update(user, preference);
+  } catch (err) {
+    // Invalid input data
+    throw new AppError(err.message, 400);
+  }
 }
 
 module.exports = {

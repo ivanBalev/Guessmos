@@ -40,12 +40,14 @@ describe('colorContent works', function () {
   });
 
   it('throws errors correctly', function () {
+    // Invalid input type
     expect(() => Guess.colorContent(1, 2)).to.throw(
       'please enter arguments of appropriate type'
     );
     expect(() => Guess.colorContent(null, undefined)).to.throw(
       'please enter arguments of appropriate type'
     );
+    // Invalid input length
     expect(() => Guess.colorContent('why', 'whod')).to.throw(
       'unsupported data length'
     );
@@ -59,6 +61,7 @@ describe('colorContent works', function () {
 });
 
 describe('validateForUser works', function () {
+  // Arrange
   let user = {
     wordLength: 5,
     wordLanguage: 'en',
@@ -73,23 +76,30 @@ describe('validateForUser works', function () {
 
   it('throws errors correctly', function () {
     // Guess length doesn't match user's preferred length
+    // Function doesn't need access to db
     expect(() =>
       Guess.validateForUser(user, pastUserGuesses, dayWord, guess)
-    ).to.throw('please insert guess with correct length');
+    ).to.throw(
+      `Invalid input - please insert guess with length ${user.wordLength}`
+    );
 
     // Correct guess length
     guess.length = 5;
     // Guess language doesn't match user's preferred language
     expect(() =>
       Guess.validateForUser(user, pastUserGuesses, dayWord, guess)
-    ).to.throw('please insert guess in correct language');
+    ).to.throw(
+      `Invalid input - please insert guess in language ${user.wordLanguage}`
+    );
 
     // Correct guess language
     guess.language = 'en';
     // dayWord already guessed successfully
     expect(() =>
       Guess.validateForUser(user, pastUserGuesses, dayWord, guess)
-    ).to.throw('you have already guessed the word successfully');
+    ).to.throw(
+      'Invalid input - you have already guessed the word successfully'
+    );
 
     // Remove correct word from guesses list
     pastUserGuesses.shift();
@@ -98,14 +108,14 @@ describe('validateForUser works', function () {
     // Guess already exists in guesses list
     expect(() =>
       Guess.validateForUser(user, pastUserGuesses, dayWord, guess)
-    ).to.throw('word already entered. please try another');
+    ).to.throw('Invalid input - word already entered. please try another');
 
     // Guess content no longer exists in guesses list
     guess.content = 'akash';
     // Out of attempts for word length & language
     expect(() =>
       Guess.validateForUser(user, pastUserGuesses, dayWord, guess)
-    ).to.throw('no more attempts for this language and length');
+    ).to.throw('Invalid input - no more attempts for this language and length');
   });
 
   it('works fine with valid data', function () {
@@ -122,6 +132,7 @@ describe('getByUser works', function () {
   this.beforeEach(async () => await connect());
   this.afterEach(async () => await disconnect());
 
+  // Arrange
   const user = {
     _id: ObjectId(),
     wordLength: 7,
@@ -130,7 +141,7 @@ describe('getByUser works', function () {
 
   const guesses = [
     {
-      // valid
+      // match
       content: 'nesting',
       language: 'en',
       length: 7,
@@ -138,7 +149,7 @@ describe('getByUser works', function () {
       wordId: ObjectId(),
     },
     {
-      // invalid lang
+      // non-matching lang
       content: 'testing',
       language: 'bg',
       length: 7,
@@ -146,7 +157,7 @@ describe('getByUser works', function () {
       wordId: ObjectId(),
     },
     {
-      // invalid length
+      // non-matching length
       content: 'testee',
       language: 'en',
       length: 6,
@@ -154,7 +165,7 @@ describe('getByUser works', function () {
       wordId: ObjectId(),
     },
     {
-      // invalid userId
+      // non-matching userId
       content: 'testing',
       language: 'en',
       length: 7,
@@ -162,7 +173,7 @@ describe('getByUser works', function () {
       wordId: ObjectId(),
     },
     {
-      // invalid date
+      // past date
       content: 'prev123',
       language: 'en',
       length: 7,

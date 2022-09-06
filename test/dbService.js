@@ -38,6 +38,7 @@ describe('guess function', function () {
   });
 
   this.afterAll(() => {
+    // Cache time to live set to 1 second by default in cfg
     process.env.CACHE_TTL = originalCacheTTL;
   });
 
@@ -61,12 +62,12 @@ describe('guess function', function () {
       .filter((w) => w.content !== dayWord)
       .map((w) => w.content);
 
-    // Create guesses
+    // Create guesses for user
     for (let i = 0; i < clientGuesses.length; i++) {
       await dbService.guess(clientGuesses[i], user);
     }
 
-    // Get guesses from db
+    // Get user guesses from db
     const userGuesses = (await Guess.find({ userId: user._id })).map(
       (g) => g.content
     );
@@ -90,8 +91,11 @@ describe('guess function', function () {
       error = err;
     }
 
+    // Expect function to throw error with non-existent word
     expect(error).to.exist;
-    expect(error.message).to.equal('word does not exist in dictionary');
+    expect(error.message).to.equal(
+      'Invalid input - word does not exist in dictionary'
+    );
   });
 });
 
@@ -104,6 +108,7 @@ describe('getUserState function', function () {
 
   it('returns all guesses for current day, length and language', async function () {
     // Arrange
+    // Create guesses for user, bypassing service check for non-existent word
     const guesses = [
       ...words,
       {
@@ -120,12 +125,15 @@ describe('getUserState function', function () {
     ].map((w) => {
       return { ...w, userId: user._id, wordId: mongoose.Types.ObjectId() };
     });
-
-    await new Word({ content: 'slugs', length: 5, language: 'en' }).save();
     await Guess.insertMany(guesses);
 
+    // Create single word in db
+    await new Word({ content: 'slugs', length: 5, language: 'en' }).save();
+
+    // Get user guesses for current day
     const userState = await dbService.getUserState(user);
 
+    // Assert we don't get entries that are old or not matching user preference
     expect(userState.length).to.equal(words.length);
     const userStateContent = userState.map((x) =>
       x.map((y) => y.value).join('')
@@ -133,12 +141,12 @@ describe('getUserState function', function () {
 
     let result = true;
 
+    // Assert all documents received from db equal those we entered
     words.forEach((w) => {
       if (!userStateContent.includes(w.content)) {
         result = false;
       }
     });
-
     expect(result).to.be.true;
   });
 });
@@ -162,16 +170,19 @@ describe('updateUser function', function () {
       wordLanguage: word.language,
     };
 
+    // Create single word in db
     await new Word(word).save();
 
+    // Update user preference to match that word
     await dbService.updateUser(user, preference);
     let error = null;
     try {
+      // Submit guess with content equal to only word in db
       await dbService.guess(word.content, user);
     } catch (err) {
       error = err;
     }
-    console.log(error);
+    // Assert no errors are thrown with valid guess
     expect(error).to.be.null;
   });
 });

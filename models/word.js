@@ -1,5 +1,4 @@
-const mongoose = require('mongoose');
-const Schema = mongoose.Schema;
+const { Schema, model } = require('mongoose');
 
 const wordSchema = new Schema(
   {
@@ -17,13 +16,15 @@ const wordSchema = new Schema(
     },
     length: {
       type: Number,
-      required: true,
+      default: function () {
+        return this.content.length;
+      },
     },
     dayWordDates: [Date],
   },
   { timestamps: true }
 );
 
-const Word = mongoose.model('Word', wordSchema);
+const Word = model('Word', wordSchema);
 
 module.exports = Word;

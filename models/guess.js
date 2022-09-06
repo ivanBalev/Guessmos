@@ -1,5 +1,4 @@
-const mongoose = require('mongoose');
-const Schema = mongoose.Schema;
+const { Schema, model } = require('mongoose');
 const AppError = require('./../utils/appError');
 const constants = {
   minLength: 5,
@@ -26,12 +25,12 @@ const guessSchema = new Schema(
       required: true,
     },
     userId: {
-      type: mongoose.Schema.ObjectId,
+      type: Schema.ObjectId,
       ref: 'User',
       requred: true,
     },
     wordId: {
-      type: mongoose.Schema.ObjectId,
+      type: Schema.ObjectId,
       ref: 'Word',
       required: true,
     },
@@ -39,11 +38,26 @@ const guessSchema = new Schema(
   { timestamps: true }
 );
 
+/**
+ * Colors user's guess depending on how
+ * closely it matches the word of the day
+ *
+ * @param {String} guessContent
+ * @param {String} dayWord
+ */
 guessSchema.statics.colorContent = function (guessContent, dayWord) {
+  // Throw error if params are not strings
   if (typeof guessContent !== 'string' || typeof dayWord !== 'string') {
-    throw new AppError('please enter arguments of appropriate type', 400);
+    throw new AppError(
+      'Invalid input - please enter arguments of appropriate type',
+      400
+    );
   }
 
+  /**
+   * Throw error if guess & dayWord don't match guess entity
+   * length constraints or don't match each other's length
+   */
   if (
     guessContent.length < constants.minLength ||
     guessContent.length > constants.maxLength ||
@@ -51,21 +65,30 @@ guessSchema.statics.colorContent = function (guessContent, dayWord) {
     dayWord.length > constants.maxLength ||
     dayWord.length !== guessContent.length
   ) {
-    throw new AppError('unsupported data length', 400);
+    throw new AppError('Invalid input - unsupported data length', 400);
   }
 
+  // Prepares input for comparison
   let dayWordArr = [...dayWord];
   let result = [...guessContent].map((c) => {
     return { value: c, color: colors.gray };
   });
-  // green
+
+  /**
+   * Colors all exact matches in green and remove letter
+   * from dayWord array to indicate it has been matched
+   */
   result.forEach((c, idx) => {
     if (dayWord[idx] == c.value) {
       result[idx].color = colors.green;
       dayWordArr[idx] = null;
     }
   });
-  // yellow
+
+  /**
+   * Colors all letters that exist but not in the right place
+   * in yellow and remove respective letter from dayWord array
+   */
   result.forEach((c, idx) => {
     if (dayWordArr.includes(c.value) && c.color != colors.green) {
       result[idx].color = colors.yellow;
@@ -75,6 +98,14 @@ guessSchema.statics.colorContent = function (guessContent, dayWord) {
   return result;
 };
 
+/**
+ * Validates user's current guess
+ *
+ * @param {User} user
+ * @param {Array} pastUserGuesses
+ * @param {String} dayWord
+ * @param {Guess} guess
+ */
 guessSchema.statics.validateForUser = function (
   user,
   pastUserGuesses,
@@ -83,26 +114,47 @@ guessSchema.statics.validateForUser = function (
 ) {
   // user preference does not match entered data
   if (user.wordLength !== guess.length) {
-    throw new AppError(`please insert guess with correct length`, 400);
+    throw new AppError(
+      `Invalid input - please insert guess with length ${user.wordLength}`,
+      400
+    );
   }
   // user preference does not match entered data
   if (user.wordLanguage !== guess.language) {
-    throw new AppError(`please insert guess in correct language`, 400);
+    throw new AppError(
+      `Invalid input - please insert guess in language ${user.wordLanguage}`,
+      400
+    );
   }
   // check if user wasn't already correct
   if (pastUserGuesses.includes(dayWord)) {
-    throw new AppError('you have already guessed the word successfully', 400);
+    throw new AppError(
+      'Invalid input - you have already guessed the word successfully',
+      400
+    );
   }
   // check if user hasn't already entered the same word
   if (pastUserGuesses.includes(guess.content)) {
-    throw new AppError('word already entered. please try another', 400);
+    throw new AppError(
+      'Invalid input - word already entered. please try another',
+      400
+    );
   }
   // check attempts count
   if (pastUserGuesses.length >= user.attemptsCount) {
-    throw new AppError('no more attempts for this language and length', 400);
+    throw new AppError(
+      'Invalid input - no more attempts for this language and length',
+      400
+    );
   }
 };
 
+/**
+ * Gets all guesses for user according to their
+ * current preference for length and language
+ *
+ * @param {User} user
+ */
 guessSchema.statics.getByUser = async function (user) {
   const { todayStr, tomorrowStr } = getDateStrings();
   const findQuery = {
@@ -117,10 +169,11 @@ guessSchema.statics.getByUser = async function (user) {
   return await this.find(findQuery);
 };
 
-const Guess = mongoose.model('Guess', guessSchema);
+const Guess = model('Guess', guessSchema);
 
 module.exports = Guess;
 
+// Helper date formatting function
 function getDateStrings() {
   let today = new Date();
   let tomorrow = new Date();

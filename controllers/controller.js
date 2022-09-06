@@ -1,6 +1,7 @@
-const dbService = require('./../services/dbService');
 const catchAsync = require('./../utils/catchAsync');
+const dbService = require('./../services/dbService');
 
+// Guess word of the day
 const guess = catchAsync(async (req, res) => {
   res.status(200).json({
     status: 'success',
@@ -8,6 +9,7 @@ const guess = catchAsync(async (req, res) => {
   });
 });
 
+// Get guesses for current day
 const getUserState = catchAsync(async (req, res) => {
   res.status(200).json({
     status: 'success',
@@ -15,6 +17,7 @@ const getUserState = catchAsync(async (req, res) => {
   });
 });
 
+// Set word language, length and number of attempts preference
 const setPreference = catchAsync(async (req, res) => {
   res.status(200).json({
     status: 'success',

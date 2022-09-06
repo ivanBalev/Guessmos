@@ -7,9 +7,11 @@ async function findById(Model, id) {
 }
 
 async function findRandom(Model, query) {
+  // Get total number of documents
   const documentsCount = await Model.countDocuments(query);
+  // Skip random number of documents
   const skip = Math.floor(Math.random() * documentsCount);
-
+  // Get random document
   return await Model.find(query).skip(skip).findOne();
 }
 
@@ -22,6 +24,7 @@ async function create(Model, object) {
 }
 
 async function update(document, object) {
+  // Iterate through object and update document fields
   for (const [key, value] of Object.entries(object)) {
     document[key] = value;
   }
@@ -29,6 +32,7 @@ async function update(document, object) {
 }
 
 async function addToArrayField(document, fieldName, object) {
+  // Update array field in document (dayWord date)
   document[fieldName].push(object);
   return await document.save();
 }

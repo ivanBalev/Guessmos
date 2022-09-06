@@ -12,6 +12,7 @@ describe('getDayWord', function () {
   });
 
   this.afterEach(async () => {
+    // Check if we haven't already disconnected (which we do to check cache works fine)
     if (mongoose.connection.readyState === 1) {
       await disconnect();
     }
@@ -47,11 +48,11 @@ describe('getDayWord', function () {
     // Act
     let dayWord5 = await getDayWord(user5);
     let dayWord6 = await getDayWord(user6);
-    // Returns user-specific word
+    // Assert function returns user-specific word
     expect(dayWord5).to.equal(words[0].content);
     expect(dayWord6).to.equal(words[1].content);
 
-    // Returns word from cache if already requested
+    // Assert functiton returns word from cache if already requested
     await disconnect();
     dayWord5 = await getDayWord(user5);
     dayWord6 = await getDayWord(user6);
@@ -59,10 +60,11 @@ describe('getDayWord', function () {
     expect(dayWord6).to.equal(words[1].content);
 
     // Wait for cache to clear
-    await new Promise((resolve) =>
-      setTimeout(resolve, `${process.env.CACHE_TTL}` * 1000)
+    await new Promise(
+      (resolve) => setTimeout(resolve, `${process.env.CACHE_TTL}` * 1000) // 1 second
     );
 
+    // Assert cache has cleared (24h have passed in prod)
     let error;
     try {
       dayWord5 = await getDayWord(user5);
@@ -70,7 +72,7 @@ describe('getDayWord', function () {
       error = err;
     }
 
-    // Cache has cleared (24h have passed in prod)
+    // No dayWords in cache and connection to db closed
     expect(error).to.exist;
   });
 });

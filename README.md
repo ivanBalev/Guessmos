@@ -1,35 +1,19 @@
-# Wordle-type api
-
-node.js BE clone
-
 Hello there!
 
-1.  Please run 'node initialSeed.js' before running the app. It will take a while...
-    PORT: 3000
-2.        POST /guess
-        	header: uuid
-        	body:
-        		{
-        			"word": ""
-        		}
+0. Create .env.test & .env.development files in your root directory with data for
+   test and development servers (MongoDb Atlas 'connection string' and 'password')
 
-        Requests without uuid are assigned one in response header
+1. Seed data - 'npm run seed {resource path || resource url} {resource language}'
 
-        POST /preference
-        	header: uuid
-        	body:
-        		{
-        			"wordLength": 7,
-        			"wordLanguage": "bg",
-        			"attemptsCount": 7
-        		}
+   - Example: 'npm run seed ./resources/poezia.txt bg'
 
-        wordLength: max length: 10
-        wordLanguage: 'bg', 'en'
-        attemptsCount: max: 50
+2. Start server - 'npm start'
 
-3.        GET /state
-        	header: uuid
+   - uuid is attached to response headers
 
-        1) words entered so far for the day, depending on word length,
-        word language & attempts count
+3. Swagger API documentation = http://localhost:3000/docs
+
+   - uuid is attached to response headers
+
+4. Run tests - 'npm run test'
+   - Make sure you've created the .env.test file in your root directory

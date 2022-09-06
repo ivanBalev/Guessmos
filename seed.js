@@ -8,7 +8,6 @@ const axios = require('axios');
 
 (async () => {
   await connect();
-  // TODO: describe seeding process in documentation *npm run seed ./resources/test.txt bg*
   try {
     const [path, language] = process.argv.slice(2);
     let words = '';
@@ -22,11 +21,11 @@ const axios = require('axios');
     }
 
     words = [...words.matchAll(regex)].map((x) => x[0].toLowerCase());
-    const distinctWords = [...new Set(words)].map((x) => {
-      return { content: x, language, length: x.length };
+    const distinctWordObjects = [...new Set(words)].map((x) => {
+      return { content: x, language };
     });
 
-    await Word.insertMany(distinctWords);
+    await Word.insertMany(distinctWordObjects);
     console.log('Seeding complete');
   } catch (err) {
     console.log('Error during seed ', err);

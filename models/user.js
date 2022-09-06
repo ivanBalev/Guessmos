@@ -1,8 +1,8 @@
-const mongoose = require('mongoose');
-const Schema = mongoose.Schema;
+const { Schema, model } = require('mongoose');
+
 const constants = {
   minWordLength: 5,
-  maxWordLength: 11,
+  maxWordLength: 12,
   minAttemptsCount: 6,
   maxAttemptsCount: 50,
   languages: { en: 'en', bg: 'bg' },
@@ -15,11 +15,11 @@ const userSchema = new Schema(
       default: constants.minWordLength,
       min: [
         constants.minWordLength,
-        `Guess length must be above ${constants.minWordLength - 1}`,
+        `Word length must be above ${constants.minWordLength - 1}`,
       ],
       max: [
         constants.maxWordLength,
-        `Guess length must be below ${constants.maxWordLength + 1}`,
+        `Word length must be below ${constants.maxWordLength + 1}`,
       ],
     },
     wordLanguage: {
@@ -46,6 +46,6 @@ const userSchema = new Schema(
   { timestamps: true }
 );
 
-const User = mongoose.model('User', userSchema);
+const User = model('User', userSchema);
 
 module.exports = User;
