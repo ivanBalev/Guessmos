@@ -7,7 +7,7 @@ Hello there!
 
 2. Seed data - 'npm run seed {resource path || resource url} {resource language}'
 
-   - Example: 'npm run seed ./resources/poezia.txt bg'
+   - Example: 'npm run seed /resources/poezia.txt bg'
 
 3. Start server - 'npm start'
 
