@@ -1,11 +1,11 @@
-import Word, {WordDocument} from '../models/word';
+import WordService from '../services/mongoose/WordService';
 import NodeCache from 'node-cache';
-import * as mongooseRepository from './../services/mongooseRepository';
-import { UserDocument } from '../models/user';
 import AppError  from '../utils/appError';
+import User from '../models/User';
+import Word from '../models/Word';
 const cache = new NodeCache({ stdTTL: +`${process.env.CACHE_TTL}` });
 
-export default async function getDayWord(user: UserDocument) {
+export default async function getDayWord(user: User) {
   let dayWord = '';
 
   // Check for dayWord in cache
@@ -22,7 +22,8 @@ export default async function getDayWord(user: UserDocument) {
   if (!dayWord) {
     const query = { language: user.wordLanguage, length: user.wordLength };
     // Get dayWord from db
-    const dbWord = (await mongooseRepository.findRandom(Word, query)) as WordDocument;
+
+    const dbWord = (await WordService.findRandom(query)) as Word;
 
     if(!dbWord) {
       throw new AppError(
@@ -32,10 +33,9 @@ export default async function getDayWord(user: UserDocument) {
     }
     
     // Update dayWordDates field
-    await mongooseRepository.update(
-      dbWord,
-      {dayWordDates: [...dbWord.dayWordDates, Date.now()]}
-    );
+    // TODO: the whole ! deal for optional params is pretty ugly. Options for validators will not be relevant for SQL.
+    // Will need more work to make these methods dbms-agnostic
+    await WordService.findByIdAndUpdate(dbWord.id!, {dayWordDates: [...dbWord.dayWordDates!, Date.now()]}, {runValidators: true})
 
     // Add dayWord to cache
     dayWord = dbWord.content;

@@ -1,66 +1,32 @@
-import {Schema, Types, model, Document} from 'mongoose';
+import { JSONSchemaType } from 'ajv';
+import IUser from './interfaces/IUser';
+import validate from './validation/validate';
 
-const constants = {
-  minWordLength: 5,
-  maxWordLength: 12,
-  minAttemptsCount: 6,
-  maxAttemptsCount: 50,
-  languages: { en: 'en', bg: 'bg' },
-};
-
-interface IUser {
-  _id: Types.ObjectId;
-  wordLanguage: string;
+// TODO: implement factory for each model for better control of instantiation process
+export default class User implements IUser {
+  id?: string;
   wordLength: number;
+  wordLanguage: string;
   attemptsCount: number;
-  createdAt: Date;
-  updatedAt: Date;
+
+  constructor(user: IUser) {
+    this.id = user.id;
+    this.wordLength = user.wordLength ?? 5;
+    this.wordLanguage = user.wordLanguage ?? 'en';
+    this.attemptsCount = user.attemptsCount ?? 20;
+    validate(this);
+  }
 }
 
-export type UserDocument = Document<Types.ObjectId> & IUser;
-
-const userSchema = new Schema<IUser>(
-  {
-    _id: {
-      type: Schema.Types.ObjectId,
-      default: () => new Types.ObjectId(),
-    },
-    wordLength: {
-      type: Number,
-      default: constants.minWordLength,
-      min: [
-        constants.minWordLength,
-        `Word length must be above ${constants.minWordLength - 1}`,
-      ],
-      max: [
-        constants.maxWordLength,
-        `Word length must be below ${constants.maxWordLength + 1}`,
-      ],
-    },
-    wordLanguage: {
-      type: String,
-      default: constants.languages.en,
-      enum: {
-        values: Object.values(constants.languages),
-        message: 'Unsupported language',
-      },
-    },
-    attemptsCount: {
-      type: Number,
-      default: constants.minAttemptsCount,
-      min: [
-        constants.minAttemptsCount,
-        `Attempts must be above ${constants.minAttemptsCount - 1}`,
-      ],
-      max: [
-        constants.maxAttemptsCount,
-        `Attempts must be below ${constants.maxAttemptsCount + 1}`,
-      ],
-    },
+export const userSchema: JSONSchemaType<User> = {
+  type: 'object',
+  title: 'User',
+  properties: {
+    id: {type: 'string', nullable: true},
+    wordLanguage: {type: 'string', enum: ['en', 'bg']},
+    wordLength: {type: 'integer', maximum: 12, minimum: 5},
+    attemptsCount: {type: 'integer', maximum: 50, minimum: 2},
   },
-  { timestamps: true }
-);
-
-const User = model<IUser>('User', userSchema);
-
-export default User;
+  required: ['wordLanguage', 'wordLength', 'attemptsCount'],
+  additionalProperties: false,
+}

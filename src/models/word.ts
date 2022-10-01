@@ -1,57 +1,39 @@
-import { Schema, model, Types, Document } from 'mongoose';
-// import {randomUUID} from 'crypto';
+import { JSONSchemaType } from 'ajv';
+import IWord from './interfaces/IWord';
+import validate from './validation/validate';
 
-export interface IWord {
-  id: string;
+export default class Word implements IWord {
+  id?: string;
   content: string;
   language: string;
   length: number;
-  dayWordDates: Date[];
+  dayWordDates?: Date[];
+
+  // TODO: Should we add id automatically, regardless of db implementation?
+  // import crypto and create new id on initialization?
+  constructor(word: IWord) {
+    this.id = word.id;
+    this.content = word.content;
+    this.language = word.language;
+    this.length = word.length;
+    this.dayWordDates = [];
+
+    validate(this);
+  }
 }
 
-interface IMongooseWord extends IWord {
-  _id: Types.ObjectId;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-export type WordDocument = Document<Types.ObjectId> & IMongooseWord;
-
-const wordSchema = new Schema<IMongooseWord>(
-  {
-    _id: {
-    type: Schema.Types.ObjectId,
-    default: () => new Types.ObjectId(),
-    },
-    content: {
-      type: String,
-      required: [true, 'Word must have content'],
-    },
-    language: {
-      type: String,
-      requred: [true, 'Word must have language'],
-      enum: {
-        values: ['en', 'bg'],
-        message: 'Supported languages: en, bg',
-      },
-    },
-    length: {
-      type: Number,
-      default: function () {
-        return this.content.length;
-      },
-    },
-    dayWordDates: [Date],
+// dayWordDates are set only long after object creation
+// Words are created only when seeding(no direct interaction with user)
+export const wordSchema: JSONSchemaType<Omit<Word, 'dayWordDates'>> = {
+  type: 'object',
+  title: 'Word',
+  properties: {
+    id: {type: 'string', nullable: true},
+    content: {type: 'string'},
+    language: {type: 'string'},
+    length: {type: 'integer'},
   },
-  { timestamps: true }
-);
-
-wordSchema.pre('save', function(next) {
-  // this.id = new randomUUID();
-
-  return next();
-})
-
-const Word = model<IMongooseWord>('Word', wordSchema);
-
-export default Word;
+  required: ['content', 'language', 'length'],
+  // TODO: Will this be needed for dayWordDates?
+  additionalProperties: true,
+}

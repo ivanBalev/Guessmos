@@ -1,5 +1,5 @@
 import fs from 'fs';
-import Word from './models/word';
+import Word from './services/mongoose/WordService';
 const bgRegex = new RegExp('[а-яА-я]{5,12}', 'g');
 const enRegex = new RegExp('[a-zA-Z]{5,12}', 'g');
 require('dotenv').config({ path: './.env.development' });

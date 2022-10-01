@@ -1,0 +1,1 @@
+// Contract defining what functionality a guess service needs to have

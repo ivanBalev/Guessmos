@@ -1,8 +1,7 @@
-import mongoose from 'mongoose';
-import User, {UserDocument} from '../models/user';
+import User from '../models/User';
 import AppError from '../utils/appError';
 import catchAsync from '../utils/catchAsync';
-import * as mongooseRepository from '../services/mongooseRepository';
+import UserService from '../services/mongoose/UserService';
 
 /**
  * Validates uuid submitted in req.headers
@@ -16,17 +15,14 @@ export default catchAsync(async (req, res) => {
   // To set headers.uuid's type, we'd have to alter internal properties of the Request type
   const userId = req.headers.uuid as string;
 
-  let user: UserDocument;
+  let user: User;
   if (!userId) {
-    user = (await mongooseRepository.create(User)) as UserDocument;
+    user = (await UserService.createOne());
   } else {
     // Validate user
-    if (!mongoose.isValidObjectId(userId)) {
-      // TODO: this doesn't need to know status codes. That's for the error-handling middleware to decide
-      // add simplicity - give the apperror just the string, it must decide the code
-      throw new AppError('Invalid input - user id', 401);
-    }
-    const dbUser = (await mongooseRepository.findById(User, userId)) as UserDocument;
+    // TODO: How does this casting thing work?
+    const cleanDbUser = (await UserService.findById(userId));
+    const dbUser = cleanDbUser as User;
     if (!dbUser) {
       throw new AppError('Invalid input - user does not exist', 404);
     }
@@ -34,5 +30,5 @@ export default catchAsync(async (req, res) => {
   }
 
   res.locals.user = user;
-  res.append('uuid', user._id.toString());
+  res.append('uuid', user.id!.toString());
 });
