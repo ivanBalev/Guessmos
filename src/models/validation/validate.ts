@@ -6,6 +6,7 @@ import {wordSchema} from '../Word';
 import User from "../User";
 import AppError from "../../utils/appError";
 
+// TODO: Import this, it was just a bug why I typed it this way
 export const userSchema: JSONSchemaType<User> = {
   type: 'object',
   title: 'User',
@@ -18,7 +19,6 @@ export const userSchema: JSONSchemaType<User> = {
   required: ['wordLanguage', 'wordLength', 'attemptsCount'],
   additionalProperties: false,
 }
-
 
 const modelSchemas:{[key: string]: Object} = {
   Word: wordSchema,

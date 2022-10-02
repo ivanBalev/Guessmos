@@ -3,6 +3,8 @@ import IWord from './interfaces/IWord';
 import validate from './validation/validate';
 
 export default class Word implements IWord {
+  // Under more complex circumstances
+  // an InputModel & ServiceModel would be needed
   id?: string;
   content: string;
   language: string;

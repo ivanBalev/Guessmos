@@ -1,139 +1,55 @@
-import { Schema, model, Types, Model, Document } from 'mongoose';
-import AppError from '../../utils/appError';
-import User from '../../models/User';
-import Word from '../../models/Word';
-import Guess from '../../models/Guess';
+import Guess from "../../models/Guess";
+import User from "../../models/User";
+import Word from "../../models/Word";
+import IGuessService from "../interfaces/IGuessService";
+import GuessRepository from "./GuessRepository";
+import AppError from "../../utils/appError";
+// Only 1 service per entity
+// different repositories for each dbms
+// Conditional import OR constructor injection?
 
-// TODO: Mongoose needs to be removed. Pure MongoDB engine needed.
+// TODO: film screen with OBS, then create GIFs for how the data flows
 
 const constants = {
   minLength: 5,
   maxLength: 11,
 };
+
 const colors = {
   green: 'green',
   yellow: 'yellow',
   gray: 'gray',
 };
 
-export type ColoredLetter = {
-  color: string;
-  value: string;
+
+async function createOne(userId: string, word: Word): Promise<Guess> {
+  // Validate data
+  const guess = new Guess({
+    userId: userId,
+    wordId: word.id!,
+    length: word.length,
+    language: word.language,
+    content: word.content,
+  });
+  // Create new guess in db
+  return await GuessRepository.create(guess);
 }
 
-interface IMongooseGuess extends Guess {
-  _id: Types.ObjectId;
-  createdAt: Date;
-  updatedAt: Date;
-  _userId: Types.ObjectId;
-  _wordId: Types.ObjectId;
+async function getByUser(user: User): Promise<Guess[]> {
+  const { todayStr, tomorrowStr } = getDateStrings();
+  const findQuery = {
+    userId: user.id,
+    createdAt: {
+      $gte: todayStr,
+      $lte: tomorrowStr,
+    },
+    length: user.wordLength,
+    language: user.wordLanguage,
+  };
+  return await GuessRepository.find(findQuery);
 }
 
-// TODO: IN GENERAL: Good idea to implement smth like view models so we don't operate with db entities everywhere
-// Will definitely help with preventing DATA LEAKS
-export type GuessDocument = Document<Types.ObjectId> & IMongooseGuess;
-
-interface GuessStaticsModel extends Model<IMongooseGuess> {
-                                                       // TODO: separate interface for this
-  colorContent(guessContent: string, dayWord: string): ColoredLetter[],
-  validateForUser (user: User, pastUserGuesses: string[], dayWord: string, word: Word): void,
-  getByUser (user: User): Promise<GuessDocument[]>,
-  createOne(userId: string, word: Word): Promise<GuessDocument>
-}
-
-const guessSchema = new Schema<IMongooseGuess, GuessStaticsModel>(
-  {
-    _id: {
-      type: Schema.Types.ObjectId,
-      default: () => new Types.ObjectId(),
-  },
-    content: {
-      type: String,
-      required: [true, 'Guess must have content'],
-    },
-    language: {
-      type: String,
-      requred: true,
-    },
-    userId: {
-      type: String,
-      ref: 'User',
-      requred: true,
-    },
-    wordId: {
-      type: String,
-      ref: 'Word',
-      required: true,
-    },
-  },
-  { timestamps: true }
-);
-
-/**
- * Colors user's guess depending on how
- * closely it matches the word of the day
- *
- * @param {String} guessContent
- * @param {String} dayWord
- */
-guessSchema.static('colorContent',
-function (guessContent: string, dayWord: string): ColoredLetter[] {
-  /**
-   * Throw error if guess & dayWord don't match guess entity
-   * length constraints or don't match each other's length
-   */
-  if (
-    guessContent.length < constants.minLength ||
-    guessContent.length > constants.maxLength ||
-    dayWord.length < constants.minLength ||
-    dayWord.length > constants.maxLength ||
-    dayWord.length !== guessContent.length
-  ) {
-    // TODO: make this error more specific
-    throw new AppError('Invalid input - unsupported data length', 400);
-  }
-
-  // Prepares input for comparison
-  let dayWordArr = [...dayWord];
-  let result = [...guessContent].map((c) => {
-    return { value: c, color: colors.gray };
-  });
-
-  /**
-   * Colors all exact matches in green and remove letter
-   * from dayWord array to indicate it has been matched
-   */
-  result.forEach((c, idx) => {
-    if (dayWord[idx] == c.value) {
-      result[idx].color = colors.green;
-      // TODO: not sure if empty char won't cause bugs
-      dayWordArr[idx] = '';
-    }
-  });
-
-  /**
-   * Colors all letters that exist but not in the right place
-   * in yellow and remove respective letter from dayWord array
-   */
-  result.forEach((c, idx) => {
-    if (dayWordArr.includes(c.value) && c.color != colors.green) {
-      result[idx].color = colors.yellow;
-      // TODO: not sure if empty char won't cause bugs
-      dayWordArr[dayWordArr.indexOf(c.value)] = '';
-    }
-  });
-  return result;
-});
-
-/**
- * Validates user's current guess
- *
- * @param {User} user
- * @param {Array} pastUserGuesses
- * @param {String} dayWord
- * @param {Guess} guess
- */
-guessSchema.static('validateForUser', function (user: User, pastUserGuesses: string[], dayWord: string, word: Word) {
+function validateForUser(user: User, pastUserGuesses: string[], dayWord: string, word: Word): void {
   // user preference does not match entered data
   if (user.wordLength !== word.length) {
     throw new AppError(
@@ -169,45 +85,61 @@ guessSchema.static('validateForUser', function (user: User, pastUserGuesses: str
       400
     );
   }
-});
+}
 
-/**
- * Gets all guesses for user according to their
- * current preference for length and language
- *
- * @param {User} user
+async function checkWord(userId: string, word: Word, dayWord: string): Promise<{ color: string; letter: string; }[]> {
+  /**
+ * Throw error if guess & dayWord don't match guess entity
+ * length constraints or don't match each other's length
  */
-// What do we return if there is just 1 result or no results? Is it still an array?
-guessSchema.static('getByUser', async function (user: User): Promise<GuessDocument[]> {
-  const { todayStr, tomorrowStr } = getDateStrings();
-  const findQuery = {
-    userId: user.id,
-    createdAt: {
-      $gte: todayStr,
-      $lte: tomorrowStr,
-    },
-    length: user.wordLength,
-    language: user.wordLanguage,
-  };
-  return await this.find(findQuery);
-});
+  if (
+    word.content.length < constants.minLength ||
+    word.content.length > constants.maxLength ||
+    dayWord.length < constants.minLength ||
+    dayWord.length > constants.maxLength ||
+    dayWord.length !== word.content.length
+  ) {
+    // TODO: make this error more specific
+    throw new AppError('Invalid input - unsupported data length', 400);
+  }
 
-guessSchema.static('createOne', async function (userId: string, word: Word) {
-  // Validate data
-  const guess = new Guess({
-    userId: userId,
-    wordId: word.id!,
-    length: word.length,
-    language: word.language,
-    content: word.content,
+  await createOne(userId, word);
+  return colorLetters(dayWord, word.content);
+}
+
+export function colorLetters(dayWord: string, word: string) {
+  // Color letters
+  // Prepares input for comparison
+  let dayWordArr = [...dayWord];
+  let result = [...word].map((c) => {
+    return { letter: c, color: colors.gray };
   });
-  // Create new guess in db
-  return await new GuessModel(guess).save()
-});
 
-const GuessModel = model<IMongooseGuess, GuessStaticsModel>('Guess', guessSchema);
+  /**
+   * Colors all exact matches in green and remove letter
+   * from dayWord array to indicate it has been matched
+   */
+  result.forEach((c, idx) => {
+    if (dayWord[idx] == c.letter) {
+      result[idx].color = colors.green;
+      // TODO: not sure if empty char won't cause bugs
+      dayWordArr[idx] = '';
+    }
+  });
 
-export default GuessModel;
+  /**
+   * Colors all letters that exist but not in the right place
+   * in yellow and remove respective letter from dayWord array
+   */
+  result.forEach((c, idx) => {
+    if (dayWordArr.includes(c.letter) && c.color != colors.green) {
+      result[idx].color = colors.yellow;
+      // TODO: not sure if empty char won't cause bugs
+      dayWordArr[dayWordArr.indexOf(c.letter)] = '';
+    }
+  });
+  return result;
+}
 
 // TODO: use library
 // Helper date formatting function
@@ -216,12 +148,19 @@ function getDateStrings() {
   let tomorrow = new Date();
   tomorrow = new Date(tomorrow.setDate(tomorrow.getDate() + 1));
 
-  const todayStr = `${today.getFullYear()}-${
-    today.getMonth() + 1
-  }-${today.getDate()}`;
-  const tomorrowStr = `${tomorrow.getFullYear()}-${
-    tomorrow.getMonth() + 1
-  }-${tomorrow.getDate()}`;
+  const todayStr = `${today.getFullYear()}-${today.getMonth() + 1
+    }-${today.getDate()}`;
+  const tomorrowStr = `${tomorrow.getFullYear()}-${tomorrow.getMonth() + 1
+    }-${tomorrow.getDate()}`;
 
   return { todayStr, tomorrowStr };
 }
+
+const service: IGuessService = {
+  checkWord,
+  validateForUser,
+  getByUser,
+  colorLetters
+}
+
+export default service

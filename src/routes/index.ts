@@ -1,8 +1,10 @@
 import express from 'express';
+import validateUser from '../middlewares/validateUser';
 const router = express.Router();
 
 import * as controller from './../controllers/controller';
 import authMiddleware from './../middlewares/auth';
+import validateGuess from './../middlewares/validateGuess';
 import docs from './docs';
 
 /**
@@ -78,7 +80,7 @@ router.get('/state', authMiddleware, controller.getUserState);
  *       404:
  *         description: Invalid input
  */
-router.post('/preference', authMiddleware, controller.setPreference);
+router.post('/preference', authMiddleware, validateUser, controller.setPreference);
 
 /**
  * @swagger
@@ -118,7 +120,7 @@ router.post('/preference', authMiddleware, controller.setPreference);
  *       404:
  *         description: Invalid input
  */
-router.post('/guess', authMiddleware, controller.guess);
+router.post('/guess', authMiddleware, validateGuess, controller.guess);
 
 // API documentation in development environment
 if (process.env.NODE_ENV === 'development') {

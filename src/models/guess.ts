@@ -3,6 +3,10 @@ import IGuess from './interfaces/IGuess';
 import validate from './validation/validate';
 
 export default class Guess implements IGuess  {
+  // Model has 2 states:
+  // 1. FE to BE transfer
+  // 2. BE to FE transfer
+
   id?: string;
   content: string;
   language: string;
