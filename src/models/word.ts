@@ -1,19 +1,16 @@
-import { JSONSchemaType } from 'ajv';
-import IWord from './interfaces/IWord';
 import validate from './validation/validate';
 
-export default class Word implements IWord {
-  // Under more complex circumstances
-  // an InputModel & ServiceModel would be needed
+export default class Word {
+  
+  // Works as both inputModel and viewModel
+  // That's why id is nullable (client doesn't always know it)
   id?: string;
   content: string;
   language: string;
   length: number;
   dayWordDates?: Date[];
 
-  // TODO: Should we add id automatically, regardless of db implementation?
-  // import crypto and create new id on initialization?
-  constructor(word: IWord) {
+  constructor(word: Word) {
     this.id = word.id;
     this.content = word.content;
     this.language = word.language;
@@ -22,20 +19,4 @@ export default class Word implements IWord {
 
     validate(this);
   }
-}
-
-// dayWordDates are set only long after object creation
-// Words are created only when seeding(no direct interaction with user)
-export const wordSchema: JSONSchemaType<Omit<Word, 'dayWordDates'>> = {
-  type: 'object',
-  title: 'Word',
-  properties: {
-    id: {type: 'string', nullable: true},
-    content: {type: 'string'},
-    language: {type: 'string'},
-    length: {type: 'integer'},
-  },
-  required: ['content', 'language', 'length'],
-  // TODO: Will this be needed for dayWordDates?
-  additionalProperties: true,
 }

@@ -1,6 +1,5 @@
-import {Schema, Types, model, Document, Model } from 'mongoose';
-import User from '../../models/User';
-import IUser from '../../models/User';
+import { Schema, Types, model, Document, Model } from 'mongoose';
+import User from '../models/User';
 
 const constants = {
   minWordLength: 5,
@@ -10,14 +9,17 @@ const constants = {
   languages: { en: 'en', bg: 'bg' },
 };
 
-interface IMongooseUser extends IUser {
+// Define properties added for db exclusively
+export interface IMongooseUser extends User {
   _id: Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
 }
 
+// Type we receive back from db
 export type UserDocument = Document<Types.ObjectId> & IMongooseUser;
 
+// Define static custom functions attached to our model
 interface UserStaticsModel extends Model<IMongooseUser> {
   createOne(user?: User): User,
 }
@@ -64,16 +66,10 @@ const userSchema = new Schema<IMongooseUser, UserStaticsModel>(
   { timestamps: true }
 );
 
-userSchema.static('createOne', async function(user?: User) {
-  const userDoc = await new UserModel(user).save();
-  // TODO: mongoose needs to be removed
-  return new User({
-    id: userDoc.id,
-    wordLanguage: userDoc.wordLanguage,
-    wordLength: userDoc.wordLength,
-    attemptsCount: userDoc.attemptsCount})
+userSchema.static('createOne', async function (user?: User) {
+  // Return created user, mapped to User input/view model(we don't need all properties returned from db)
+  return await new UserModel(user).save() as User;
 });
 
 const UserModel = model<IMongooseUser, UserStaticsModel>('User', userSchema);
-
 export default UserModel;

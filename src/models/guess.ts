@@ -1,12 +1,9 @@
-import { JSONSchemaType } from 'ajv';
-import IGuess from './interfaces/IGuess';
 import validate from './validation/validate';
 
-export default class Guess implements IGuess  {
-  // Model has 2 states:
-  // 1. FE to BE transfer
-  // 2. BE to FE transfer
+export default class Guess {
 
+  // Works as both inputModel and viewModel
+  // That's why id is nullable (client doesn't always know it)
   id?: string;
   content: string;
   language: string;
@@ -14,7 +11,7 @@ export default class Guess implements IGuess  {
   userId: string;
   wordId: string;
 
-  constructor(guess: IGuess) {
+  constructor(guess: Guess) {
     this.id = guess.id;
     this.content = guess.content;
     this.language = guess.language;
@@ -24,19 +21,4 @@ export default class Guess implements IGuess  {
 
     validate(this);
   }
-}
-
-export const guessSchema: JSONSchemaType<Guess> = {
-  type: 'object',
-  title: 'Word',
-  properties: {
-    id: {type: 'string', nullable: true},
-    content: {type: 'string'},
-    language: {type: 'string', enum: ['en', 'bg']},
-    length: {type: 'integer'},
-    userId: {type: 'string'},
-    wordId: {type: 'string'},
-  },
-  required: ['content', 'language', 'length', 'userId', 'wordId'],
-  additionalProperties: false,
 }

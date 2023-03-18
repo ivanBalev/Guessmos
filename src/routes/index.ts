@@ -30,11 +30,11 @@ import docs from './docs';
  *               format: ObjectId
  *             description: user id
  *       401:
- *         description: Invalid input - user id
+ *         description: Malformed user id
  *       404:
- *         description: Invalid input
+ *         description: Non-existent input
  */
-router.get('/state', authMiddleware, controller.getUserState);
+router.get('/state', authMiddleware, controller.getState);
 
 /**
  * @swagger
@@ -74,11 +74,11 @@ router.get('/state', authMiddleware, controller.getUserState);
  *               format: ObjectId
  *             description: user id
  *       400:
- *         description: User validation failed
+ *         description: Input validation failed
  *       401:
- *         description: Invalid input - user id
+ *         description: Malformed user id
  *       404:
- *         description: Invalid input
+ *         description: Non-existent input
  */
 router.post('/preference', authMiddleware, validateUser, controller.setPreference);
 
@@ -114,11 +114,11 @@ router.post('/preference', authMiddleware, validateUser, controller.setPreferenc
  *               format: ObjectId
  *             description: user id
  *       400:
- *         description: Invalid input
+ *         description: Word does not meet requirements
  *       401:
- *         description: Invalid input - user id
+ *         description: Malformed user id
  *       404:
- *         description: Invalid input
+ *         description: Non-existent input
  */
 router.post('/guess', authMiddleware, validateGuess, controller.guess);
 

@@ -1,47 +1,75 @@
-import Ajv, { JSONSchemaType } from "ajv";
-const ajv = new Ajv();
-import IModel from "../interfaces/IModel";
-import {guessSchema} from '../Guess';
-import {wordSchema} from '../Word';
-import User from "../User";
+import Ajv from "ajv";
+import ajvErrors from 'ajv-errors';
+const ajv = new Ajv({ allErrors: true });
+ajvErrors(ajv);
 import AppError from "../../utils/appError";
 
-// TODO: Import this, it was just a bug why I typed it this way
-export const userSchema: JSONSchemaType<User> = {
-  type: 'object',
-  title: 'User',
-  properties: {
-    id: {type: 'string', nullable: true},
-    wordLanguage: {type: 'string', enum: ['en', 'bg']},
-    wordLength: {type: 'integer', maximum: 12, minimum: 5},
-    attemptsCount: {type: 'integer', maximum: 50, minimum: 2},
+// Initialize schemas collection
+const modelSchemas: { [key: string]: Object } = {
+  Word: {
+    type: 'object',
+    title: 'Word',
+    properties: {
+      id: { type: 'string', nullable: true },
+      content: { type: 'string' },
+      language: { type: 'string' },
+      length: { type: 'integer' },
+    },
+    required: ['content', 'language', 'length'],
+    additionalProperties: true,
   },
-  required: ['wordLanguage', 'wordLength', 'attemptsCount'],
-  additionalProperties: false,
+  Guess: {
+    type: 'object',
+    title: 'Word',
+    properties: {
+      id: { type: 'string', nullable: true },
+      content: { type: 'string' },
+      language: { type: 'string', enum: ['en', 'bg'] },
+      length: { type: 'integer' },
+      userId: { type: 'string' },
+      wordId: { type: 'string' },
+    },
+    required: ['content', 'language', 'length', 'userId', 'wordId'],
+    additionalProperties: false,
+  },
+  User: {
+    type: 'object',
+    title: 'User',
+    properties: {
+      id: { type: 'string', nullable: true },
+      wordLanguage: { type: 'string', enum: ['en', 'bg'] },
+      wordLength: { type: 'integer', maximum: 12, minimum: 5 },
+      attemptsCount: { type: 'integer', maximum: 50, minimum: 2 },
+    },
+    errorMessage: {
+      properties: {
+        wordLanguage: 'wordLanguage can be either \'en\' or \'bg\'',
+      },
+    },
+    required: ['wordLanguage', 'wordLength', 'attemptsCount'],
+    additionalProperties: false,
+  }
 }
 
-const modelSchemas:{[key: string]: Object} = {
-  Word: wordSchema,
-  Guess: guessSchema,
-  User: userSchema
-}
+// Validate input data against schema
+export default function validate(data: Object) {
 
-// TODO: this can be implemented in a middleware to validate data from certain endpoints
-export default function validate(data: IModel) {
+  // Get the schema name = the input constructor's name
   const schemaName = data.constructor.name;
-  if(!Object.keys(modelSchemas).includes(schemaName)) {
+
+  // Assert the schema exists in our schemas collection
+  if (!Object.keys(modelSchemas).includes(schemaName)) {
     throw new AppError('Object schema does not exist in validation file', 500)
   }
 
-  // TODO: compile validate fn in advance
+  // Validate input
   const checkIfValid = ajv.compile(modelSchemas[schemaName]);
-  
-  if(checkIfValid(data)) {
+  if (checkIfValid(data)) {
     return true;
   }
 
-  // TODO: this needs better typing
-  for (const err of checkIfValid.errors as {instancePath: string, message: string}[]) {
+  // Throw all errors from validation result
+  for (const err of checkIfValid.errors as { instancePath: string, message: string }[]) {
     throw new AppError(`${err.instancePath.slice(1)} ${err.message} `, 400);
   }
 }

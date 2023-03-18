@@ -1,32 +1,25 @@
-import { JSONSchemaType } from 'ajv';
-import IUser from './interfaces/IUser';
 import validate from './validation/validate';
 
-// TODO: implement factory for each model for better control of instantiation process
-export default class User implements IUser {
+const defaultValues = {
+  wordLength: 5,
+  wordLanguage: 'en',
+  attemptsCount: 20
+}
+
+export default class User {
+
+  // Works as both inputModel and viewModel
+  // That's why id is nullable (client doesn't always know it)
   id?: string;
   wordLength: number;
   wordLanguage: string;
   attemptsCount: number;
 
-  constructor(user: IUser) {
+  constructor(user: User) {
     this.id = user.id;
-    this.wordLength = user.wordLength ?? 5;
-    this.wordLanguage = user.wordLanguage ?? 'en';
-    this.attemptsCount = user.attemptsCount ?? 20;
+    this.wordLength = user.wordLength ?? defaultValues.wordLength;
+    this.wordLanguage = user.wordLanguage ?? defaultValues.wordLanguage;
+    this.attemptsCount = user.attemptsCount ?? defaultValues.attemptsCount;
     validate(this);
   }
-}
-
-export const userSchema: JSONSchemaType<User> = {
-  type: 'object',
-  title: 'User',
-  properties: {
-    id: {type: 'string', nullable: true},
-    wordLanguage: {type: 'string', enum: ['en', 'bg']},
-    wordLength: {type: 'integer', maximum: 12, minimum: 5},
-    attemptsCount: {type: 'integer', maximum: 50, minimum: 2},
-  },
-  required: ['wordLanguage', 'wordLength', 'attemptsCount'],
-  additionalProperties: false,
 }

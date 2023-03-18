@@ -3,6 +3,7 @@ const router = express.Router();
 const swaggerJSDoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');
 
+// SwaggerJSDoc definition
 const options = {
   swaggerDefinition: {
     info: {
@@ -23,27 +24,15 @@ const options = {
       },
       {
         name: 'state',
-        description: 'Get guesses for current day',
-      },
-      {
-        name: 'info',
-        description: 'General API info',
+        description: 'Get guesses for current day & set preference',
       },
     ],
   },
-  apis: ['./routes/**/*.js'],
+  apis: ['**/*.ts'],
 };
 
 const swaggerSpecification = swaggerJSDoc(options);
 
-/**
- * @swagger
- * /docs:
- *    get:
- *      tags:
- *      - info
- *      description: Project documentation.
- */
 router.use('/', swaggerUi.serve, swaggerUi.setup(swaggerSpecification));
 
 export default router;

@@ -4,9 +4,6 @@ const dbConnectionStr = process.env.DATABASE!.replace(
   process.env.DATABASE_PASSWORD!
 );
 
-// TODO: switch implementation based on env variable
-// we'll have both mongoose and SQL options
-// switch statement will determing what to export
 export const connect = async () => {
   try {
     await mongoose.connect(dbConnectionStr);

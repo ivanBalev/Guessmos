@@ -1,7 +1,8 @@
 import User from '../models/User';
 import AppError from '../utils/appError';
 import catchAsync from '../utils/catchAsync';
-import UserService from '../services/mongoose/UserService';
+import UserService, { IMongooseUser } from '../services/UserService';
+import { Document, Types } from 'mongoose';
 
 /**
  * Validates uuid submitted in req.headers
@@ -12,23 +13,38 @@ import UserService from '../services/mongoose/UserService';
  */
 
 export default catchAsync(async (req, res) => {
-  // To set headers.uuid's type, we'd have to alter internal properties of the Request type
-  const userId = req.headers.uuid as string;
 
+  const userId = req.headers.uuid as string;
   let user: User;
+
   if (!userId) {
-    user = (await UserService.createOne());
+
+    // If no uuid is provided by client, create new user
+    user = await UserService.createOne();
   } else {
-    // Validate user
-    // TODO: How does this casting thing work?
-    const cleanDbUser = (await UserService.findById(userId));
-    const dbUser = cleanDbUser as User;
-    if (!dbUser) {
-      throw new AppError('Invalid input - user does not exist', 404);
+
+    // Try and get user from database
+    let dbUser: (Document<unknown, any, IMongooseUser> & IMongooseUser & Required<{ _id: Types.ObjectId; }>) | null;
+    try {
+      dbUser = await UserService.findById(userId);
     }
+    catch (err) {
+
+      // Invalid mongoose ObjectId
+      throw new AppError('Invalid input - malformed user id', 401);
+    }
+    if (!dbUser) {
+
+      // Non-existent user
+      throw new AppError('Invalid input - content does not exist', 404);
+    }
+
     user = dbUser;
   }
 
+  // Attach user to request locals
   res.locals.user = user;
+
+  // Add uuid header to response for client to use in subsequent requests
   res.append('uuid', user.id!.toString());
 });
