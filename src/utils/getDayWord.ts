@@ -3,8 +3,8 @@ import NodeCache from 'node-cache';
 import AppError from '../utils/appError';
 import User from '../models/User';
 import Word from '../models/Word';
-const cache = new NodeCache({ stdTTL: +`${process.env.CACHE_TTL}` });
 
+export const cache = new NodeCache({ stdTTL: +`${process.env.CACHE_TTL}` });
 export default async function getDayWord(user: User) {
 
   // Define word of the day

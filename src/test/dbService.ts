@@ -1,17 +1,16 @@
 require('dotenv').config({ path: `.env.${process.env.NODE_ENV}` });
 import chai from 'chai';
 const expect = chai.expect;
-import { connect, disconnect } from '../database';
+import { connect, dropDatabase } from '../database';
 import WordService from '../services/WordService';
 import UserService from '../services/UserService';
 import User, { UserDocument } from '../services/UserService';
 import GuessService, { constants as guessConstants } from '../services/GuessService';
-import getDayWord from '../utils/getDayWord';
+import getDayWord, { cache } from '../utils/getDayWord';
 import mongoose from 'mongoose';
 import getPreviousDay from './helpers/helpers';
 import AppError from '../utils/appError';
 import Word from '../models/Word';
-const originalCacheTTL = process.env.CACHE_TTL;
 
 let user: UserDocument;
 
@@ -34,16 +33,6 @@ const words = [
 ];
 
 describe('guess function', function () {
-  this.beforeAll(() => {
-    // Need control over dayWord TTL
-    process.env.CACHE_TTL = `${60 * 60 * 24}`;
-  });
-
-  this.afterAll(() => {
-    // Cache time to live set to 1 second by default in cfg
-    process.env.CACHE_TTL = originalCacheTTL;
-  });
-
   this.beforeEach(async () => {
     // Connect to db & create new user
     await connect();
@@ -51,7 +40,8 @@ describe('guess function', function () {
   });
 
   this.afterEach(async () => {
-    await disconnect();
+    cache.flushAll();
+    await dropDatabase();
   });
 
   it('creates guesses correctly', async function () {
@@ -118,10 +108,10 @@ describe('getUserState function', function () {
     await connect();
     user = await new User().save();
   });
-  this.afterEach(async () => await disconnect());
+  this.afterEach(async () => await dropDatabase());
 
   it('returns all guesses for current day, length and language', async function () {
-    
+
     // Create guesses for user, bypassing service check for non-existent word
     const guesses = [
       ...words,
@@ -167,7 +157,7 @@ describe('updateUser function', function () {
     await connect();
     user = await new User().save();
   });
-  this.afterEach(async () => await disconnect());
+  this.afterEach(async () => await dropDatabase());
 
   it('works correctly', async function () {
     const word = {

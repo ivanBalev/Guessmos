@@ -1,7 +1,7 @@
 require('dotenv').config({ path: `.env.${process.env.NODE_ENV}` });
 import chai from 'chai';
 const expect = chai.expect;
-import { connect, disconnect } from '../database';
+import { connect, dropDatabase } from '../database';
 import authMiddleware from '../middlewares/auth';
 import mongoose from 'mongoose';
 import { promisify } from 'util';
@@ -23,7 +23,7 @@ describe('auth middleware', function () {
   });
 
   this.afterEach(async () => {
-    await disconnect();
+    await dropDatabase();
   });
 
   it('creates new user with no given uuid in request', async function () {

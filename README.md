@@ -2,22 +2,19 @@ Hello there!
 
 0. Install dependencies - npm i
 
-1. Create .env.test & .env.development files in your root directory with data for
-   test and development servers (MongoDb Atlas 'connection string' and 'password')
+1. Create .env.development file in your root directory with credentials for the development server
 
 2. Seed data - 'npm run seed {resource path || resource url} {resource language}'
 
    - Example: 'npm run seed /resources/poezia.txt bg'
+   - Example: 'npm run seed https://www.ef.com/wwen/english-resources/english-vocabulary/top-3000-words en'
 
 3. Start server - 'npm start'
 
-   - User id(uuid) is attached to response headers
-
 4. Swagger API documentation = http://localhost:3000/docs
 
-   - User id(uuid) is attached to response headers
+   - User id(uuid) is attached to response headers after first guess request
+   - Set it in your request headers for subsequent requests to keep track of all your guesses
 
-5. Run tests - 'npm run test'
-   - Make sure you've created the .env.test file in your root directory
-   - Set CACHE_TTL=1 in your .env.test file. We're waiting for the cache
-     clear in our tests so value needs to be as low as possible.
+5. Run tests - 'npm test'
+   - Create .env.test file in your root directory with credentials for the testing server

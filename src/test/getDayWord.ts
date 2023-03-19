@@ -1,9 +1,9 @@
 require('dotenv').config({ path: `.env.${process.env.NODE_ENV}` });
 import chai from 'chai';
 const expect = chai.expect;
-import { connect, disconnect } from '../database';
+import { connect, dropDatabase } from '../database';
 import mongoose from 'mongoose';
-import getDayWord from '../utils/getDayWord';
+import getDayWord, { cache } from '../utils/getDayWord';
 import WordService from '../services/WordService';
 
 describe('getDayWord', function () {
@@ -14,7 +14,7 @@ describe('getDayWord', function () {
   this.afterEach(async () => {
     // Check if we haven't already disconnected (which we do to check cache works fine)
     if (mongoose.connection.readyState === 1) {
-      await disconnect();
+      await dropDatabase();
     }
   });
 
@@ -58,26 +58,20 @@ describe('getDayWord', function () {
     expect(dayWord6).to.equal(words[1].content);
 
     // Assert functiton returns word from cache if already requested
-    await disconnect();
+    await dropDatabase();
     dayWord5 = await getDayWord(user5);
     dayWord6 = await getDayWord(user6);
     expect(dayWord5).to.equal(words[0].content);
     expect(dayWord6).to.equal(words[1].content);
 
+    // Clear cache
+    cache.flushAll();
 
-    const cacheTTL = process.env.CACHE_TTL;
-    // Wait for cache to clear
-    if (cacheTTL) {
-      await new Promise(
-        (resolve) => setTimeout(resolve, +cacheTTL * 1000) // 1 second
-      );
-    }
-
-    // Assert cache has cleared (24h have passed in prod)
     let error;
     try {
       // At this point, we're disconnected from db
       dayWord5 = await getDayWord(user5);
+      console.log(dayWord5);
     } catch (err) {
       error = err;
     }

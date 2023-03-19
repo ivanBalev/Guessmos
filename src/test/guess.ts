@@ -1,7 +1,7 @@
 require('dotenv').config({ path: './.env.test' });
 import { expect } from 'chai';
 import { Types } from 'mongoose';
-import { connect, disconnect } from '../database';
+import { connect, dropDatabase } from '../database';
 import GuessService from '../services/GuessService';
 import getPreviousDay from './helpers/helpers';
 import User, { UserDocument } from '../services/UserService';
@@ -26,7 +26,7 @@ describe('checkWord works', function () {
   });
 
   this.afterEach(async () => {
-    await disconnect();
+    await dropDatabase();
   });
 
 
@@ -195,7 +195,7 @@ describe('validateForUser works', function () {
 
 describe('getByUser works', function () {
   this.beforeEach(async () => await connect());
-  this.afterEach(async () => await disconnect());
+  this.afterEach(async () => await dropDatabase());
 
   it('works correctly', async function () {
     const user1 = await new User({
