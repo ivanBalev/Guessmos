@@ -14,7 +14,7 @@ To run it:
 <p>1. Create .env.development file in your root directory with credentials for the development server</p>
 <p>2. Seed data - 'npm run seed {resource path || resource url} {resource language}'</p>
 
-   - Example: 'npm run seed `/resources/poezia.txt bg`
+   - Example: 'npm run seed `/resources/shakespiro.txt en`
    - Example: 'npm run seed `https://www.ef.com/wwen/english-resources/english-vocabulary/top-3000-words en`
 
 <p>3. Start server - 'npm start'</p>
