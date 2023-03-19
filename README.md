@@ -1,5 +1,5 @@
 <p>Hello there!</p>
-<p>This is an  <b>Express.js api</b> - clone the famous web-based word game <b>Wordle</b></p>
+<p>This is an  <b>Express.js api</b> - clone of the famous web-based word game <b>Wordle</b></p>
 <div>
   <img src="https://github.com/devicons/devicon/blob/master/icons/mongodb/mongodb-original-wordmark.svg" title="MongoDB" alt="MongoDB" width="40" height="40"/>&nbsp;
   <img src="https://github.com/devicons/devicon/blob/master/icons/nodejs/nodejs-original.svg" title="Node.js" alt="Node.js" width="40" height="40"/>&nbsp;
