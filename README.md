@@ -6,12 +6,12 @@ Hello there!
 
 2. Seed data - 'npm run seed {resource path || resource url} {resource language}'
 
-   - Example: 'npm run seed /resources/poezia.txt bg'
-   - Example: 'npm run seed https://www.ef.com/wwen/english-resources/english-vocabulary/top-3000-words en'
+   - Example: 'npm run seed `/resources/poezia.txt bg`'
+   - Example: 'npm run seed `https://www.ef.com/wwen/english-resources/english-vocabulary/top-3000-words en`'
 
 3. Start server - 'npm start'
 
-4. Swagger API documentation = http://localhost:3000/docs
+4. Swagger API documentation = `http://localhost:3000/docs`
 
    - User id(uuid) is attached to response headers after first guess request
    - Set it in your request headers for subsequent requests to keep track of all your guesses
